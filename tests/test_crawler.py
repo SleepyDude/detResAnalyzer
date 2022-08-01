@@ -10,7 +10,6 @@ def test_file_crawler_class_exists():
 def test_crawl_test_dir():
     cr = Crawler(BASE_DIR.joinpath('tests/test_resources'))
     files = cr.getFiles()
-    assert len(files) == 4
     names = [i.split('/')[-1] for i in files]
     assert 'results-master_h1_DiagDetPV-3-Spec.csv' in names
     assert 'results-master_h1_XWallDetPV-6-Theta.csv' in names
