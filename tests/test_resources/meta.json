@@ -51,9 +51,7 @@
         "class": "Vert",
         "distance": 800,
         "solid-angle": 12345
-    },
-
-
+    }
 ],
 "detector-classes": [
     "Diag",

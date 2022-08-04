@@ -7,5 +7,5 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 def test_filesManagerRead():
     fm = FilesManager()
     fm.readDirectory(BASE_DIR.joinpath('tests/test_resources'))
-    assert len(fm.metaFiles) == 1
-    assert len(fm.detectors) == 4
+    assert len(fm.metaFiles) == 2
+    assert len(fm.detectorFiles) == 4

@@ -2,7 +2,7 @@ from anadet.crawler import Crawler
 
 class FilesManager:
     def __init__(self):
-        self.detectors = []
+        self.detectorFiles = []
         self.metaFiles = []
 
     def readDirectory(self, dir):
@@ -10,6 +10,9 @@ class FilesManager:
         files = cr.getFiles()
         for file in files:
             if file.endswith('.csv'):
-                self.detectors.append(file)
+                self.detectorFiles.append(file)
             elif 'meta' in file:
                 self.metaFiles.append(file)
+
+    def getDetFiles(self):
+        return self.detectorFiles
