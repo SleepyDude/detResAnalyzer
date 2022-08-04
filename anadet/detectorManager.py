@@ -30,3 +30,7 @@ class DetectorManager:
         if not nhists:
             pass # TODO - no nhists in filename, maybe search in meta of doesn't matter
 
+        # TODO - looking for detector name
+        # TODO - looking for detector quantity type
+
+
