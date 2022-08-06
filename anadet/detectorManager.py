@@ -31,6 +31,8 @@ class DetectorManager:
             pass # TODO - no nhists in filename, maybe search in meta of doesn't matter
 
         # TODO - looking for detector name
+        det_name, hist_type, det_type, det_quantity, det_num = self.dataSearcher.lookingForDetNameInfo(filename)
+
         # TODO - looking for detector quantity type
 
 

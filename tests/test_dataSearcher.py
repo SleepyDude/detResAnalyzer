@@ -30,3 +30,13 @@ def test_lookForNhists():
     filename = "test_resources/14 MeV/testtest_25kkk/results-master_h1_DiagDetPV-2-Phi-8.11eV.csv"
     res = dm.lookingForNhists(filename)
     assert res == 25e+9
+
+def test_lookForDetNameInfo():
+    ds = DataSearcher()
+    filename = "test_resources 3keV/14 MeV 4kk/testtest results-master_h1_DiagDetPV-2-Phi-BestDetector.csv"
+    det_name, hist_type, det_type, det_quantity, det_num = ds.lookingForDetNameInfo(filename)
+    assert det_name == 'DiagDetPV-2-Phi-BestDetector'
+    assert hist_type == 'h1'
+    assert det_type == 'DiagDetPV---BestDetector'
+    assert det_quantity == 'Phi'
+    assert det_num == 2
