@@ -37,6 +37,6 @@ def test_lookForDetNameInfo():
     det_name, hist_type, det_type, det_quantity, det_num = ds.lookingForDetNameInfo(filename)
     assert det_name == 'DiagDetPV-2-Phi-BestDetector'
     assert hist_type == 'h1'
-    assert det_type == 'DiagDetPV---BestDetector'
+    assert det_type == 'Diag'
     assert det_quantity == 'Phi'
     assert det_num == 2

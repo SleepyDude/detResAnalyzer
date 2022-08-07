@@ -10,6 +10,7 @@ class DataSearcher:
 
     ENERGY_UNITS = ["MeV", "keV", "eV", "meV", "ueV"]
     DET_QUANTITY_TYPES = ["Phi", "Theta", "Spec"]
+    DET_CLASSES = ["Diag", "XWall", "YWall", "Vert"] # TODO - for filtering only, user should be able to set it
 
     def __init__(self):
         pass
@@ -54,8 +55,9 @@ class DataSearcher:
         m = re.search(r'(\d+)', detName) # TODO - case with more than one numbers in the name
         if m: # if number found in the name then it belongs to detector numeration
             detNum = int(m.group(0))
-        detType = detName.replace(detQuantity, '').replace(str(detNum), '')
-        # TODO - strip delimiters
+        for item in self.DET_CLASSES:
+            if item in detName:
+                detType = item
         return detName, histType, detType, detQuantity, detNum
 
 

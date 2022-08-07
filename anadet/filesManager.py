@@ -11,7 +11,7 @@ class FilesManager:
         for file in files:
             if file.endswith('.csv'):
                 self.detectorFiles.append(file)
-            elif 'meta' in file:
+            elif file.endswith('meta.yaml'):
                 self.metaFiles.append(file)
 
     def getDetFiles(self):
