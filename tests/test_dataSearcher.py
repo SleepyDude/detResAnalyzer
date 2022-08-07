@@ -40,3 +40,4 @@ def test_lookForDetNameInfo():
     assert det_type == 'Diag'
     assert det_quantity == 'Phi'
     assert det_num == 2
+    

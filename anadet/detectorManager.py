@@ -4,7 +4,7 @@ from dataSearcher import DataSearcher
 
 class DetectorManager:
     def __init__(self):
-        self.detectors = []
+        self.detectors = {}
         self.detCategories = []
         self.dataSearcher = DataSearcher()
 
@@ -29,10 +29,10 @@ class DetectorManager:
         nhists = self.dataSearcher.lookingForNhists(filename)
         if not nhists:
             pass # TODO - no nhists in filename, maybe search in meta of doesn't matter
-
-        # TODO - looking for detector name
         det_name, hist_type, det_type, det_quantity, det_num = self.dataSearcher.lookingForDetNameInfo(filename)
-
-        # TODO - looking for detector quantity type
+        if det_name in self.detectors:
+            det_name += 1
+        else:
+            det_name = 1
 
 
