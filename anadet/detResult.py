@@ -32,8 +32,6 @@ class DetResult:
             self.y2 = []
             for _ in range(self.data_size):
                 line = f.readline().strip()
-                print(line, end=' ')
-                print(self.data_size)
                 if not line:
                     continue # case of empty strings at the end of the file
                 items = list(map(float, line.split(',')))
@@ -84,3 +82,6 @@ class DetResult:
         self.data_size = 0
         self.bin_index = None
         self.title = ""
+
+    def appendData(self, other):
+        ...

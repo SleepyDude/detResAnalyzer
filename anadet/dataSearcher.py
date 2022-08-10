@@ -22,7 +22,8 @@ class DataSearcher:
             item['energy'] = float(item['energy'])
         return res
 
-    def lookingForNhists(self, text):
+    def lookingForNhists(self, text: str) -> int:
+        assert type(text) == str, f"ERROR({__file__})text should be str, but {type(text)} found"
         histories = None
         m = self.NHISTS_PATTERN.search(text)
         if m:
@@ -60,14 +61,3 @@ class DataSearcher:
             if item in detName:
                 detType = item
         return detName, histType, detType, detQuantity, detNum
-
-
-
-
-
-
-
-        m = self.NHISTS_PATTERN.search(text)
-        if m:
-            histories = int(m.group('nhists')) * 1e3**len(m.group('multiplier'))
-        return histories

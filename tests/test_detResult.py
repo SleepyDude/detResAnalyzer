@@ -95,3 +95,24 @@ def test_readData():
     assert math.isclose(dr.y2[0], 43932.7, rel_tol=1e-4)
     assert math.isclose(dr.y2[5], 8475.79, rel_tol=1e-4)
     
+def test_dataMerge():
+    dr1 = DetResult()
+    dr2 = DetResult()
+    dr3 = DetResult()
+    TEST_DIR = BASE_DIR.joinpath('tests/test_resources/filenames_and_grouping')
+    filename1 = str( TEST_DIR.joinpath('1 keV 6kk/someName_h1_SpecDetDiag-2.csv') )
+    filename2 = str( TEST_DIR.joinpath('1 keV 10kk/someName_h1_SpecDetDiag-2.csv') )
+    filename3 = str( TEST_DIR.joinpath('1 keV 19kk/someName_h1_SpecDetDiag-2.csv') )
+    dr1.readDataFromCSV(filename1)
+    dr2.readDataFromCSV(filename2)
+    dr3.readDataFromCSV(filename3)
+
+    dr = DetResult()
+    dr.appendData(dr1)
+    dr.appendData(dr2)
+    dr.appendData(dr3)
+
+    assert math.isclose( dr.y[0], 615.654 + 9493.32 + 17176.3, abs_tol=1e-4 )
+    assert math.isclose( dr.y[3], 576.182 + 11508.3 + 17059.4, abs_tol=1e-4 )
+    assert math.isclose( dr.overflow_top, 299.061 + 16435.7 + 17625.1, abs_tol=1e-4 )
+    assert dr.nhists == 35e+6
