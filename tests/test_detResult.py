@@ -2,8 +2,7 @@ import pytest
 from anadet.detResult import *
 import math
 from pathlib import Path
-
-BASE_DIR = Path(__file__).resolve().parent.parent
+from tests.config import BASE_DIR
 
 def test_processHeader():
     header = ['#class tools::histo::h1d',\

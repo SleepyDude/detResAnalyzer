@@ -15,7 +15,8 @@ class DataSearcher:
     def __init__(self):
         pass
 
-    def lookingForEnergyInfo(self, text):
+    def lookingForEnergyInfo(self, text: str):
+        assert type(text) == str, f"ERROR({__file__})text should be str, but {type(text)} found"
         res = [m.groupdict() for m in self.ENERGY_PATTERN.finditer(text)]
         for item in res:
             item['energy'] = float(item['energy'])

@@ -1,8 +1,9 @@
 from anadet.metaReader import MetaReader
 import math
+from tests.config import BASE_DIR
 
 def test_readMeta():
-    metapath = "/Users/kolodinevgenij/projects/detector-res/detResAnalyzer/tests/test_resources/tests_1/meta.yaml"
+    metapath = BASE_DIR.joinpath('tests/test_resources/tests_1/meta.yaml')
     mr = MetaReader()
     mr.readFile(metapath)
     params = mr.getParamsForDetector('Vert', 5)

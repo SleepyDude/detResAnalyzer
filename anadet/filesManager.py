@@ -9,9 +9,9 @@ class FilesManager:
         cr = Crawler(dir)
         files = cr.getFiles()
         for file in files:
-            if file.endswith('.csv'):
+            if file.name.endswith('.csv'):
                 self.detectorFiles.append(file)
-            elif file.endswith('meta.yaml'):
+            elif file.name.endswith('meta.yaml'):
                 self.metaFiles.append(file)
 
     def getDetFiles(self):
