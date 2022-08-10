@@ -7,7 +7,13 @@ class CSVHeaderError(Exception):
 class CSVReadError(Exception):
     ...
 
+class AppendResError(Exception):
+    ...
+
 class DetResult:
+    """
+        self.merge_list = filenames of datafiles, which were appended to this result object 
+    """
     START_DATA_IDX = 7
     BINS = [] # some results share the same bin sequence
 
@@ -18,6 +24,7 @@ class DetResult:
         ds = DataSearcher()
         self.nhists = ds.lookingForNhists(filename)
         self.filename = filename
+        self.merge_list.append(filename)
         # Method shouldn't handle exceptions, just raise them
         with open(self.filename, 'r') as f:
             # Reading header
@@ -77,11 +84,32 @@ class DetResult:
     def clear(self):
         self.y = []
         self.y2 = []
+        self.merge_list = list()
         self.overflow_bot = 0
         self.overflow_top = 0
         self.data_size = 0
         self.bin_index = None
         self.title = ""
+        self.nhists = 0
 
     def appendData(self, other):
-        ...
+        if len(self.y) == 0: # append data to the new result object, need to prepare data structures to fit the other data
+            self.data_size = other.data_size
+            self.bin_index = other.bin_index
+            self.y  = [0.0 for _ in other.y]
+            self.y2 = [0.0 for _ in other.y2]
+        
+        if self.bin_index != other.bin_index:
+            raise AppendResError(f"MERGE ERROR: can't merge detResults with different bins")
+        if self.data_size != other.data_size:
+            raise AppendResError(f"MERGE ERROR: can't merge detResults with different sizes {self.data_size} vs {other.data_size}")
+        # appending data
+        self.title = "Merged"
+        self.filename = "Merged"
+        self.merge_list.append(other.filename)
+        self.overflow_bot += other.overflow_bot
+        self.overflow_top += other.overflow_top
+        self.nhists += other.nhists
+        for i in range(self.data_size):
+            self.y[i] += other.y[i]
+            self.y2[i] += other.y2[i]
