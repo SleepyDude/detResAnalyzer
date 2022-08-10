@@ -1,4 +1,5 @@
 import math
+from anadet.dataSearcher import DataSearcher
 
 class CSVHeaderError(Exception):
     ...
@@ -10,11 +11,13 @@ class DetResult:
     START_DATA_IDX = 7
     BINS = [] # some results share the same bin sequence
 
-    def __init__(self, filename, nhists):
-        self.filename = filename
-        self.nhists = nhists
+    def __init__(self):
+        self.clear()
 
-    def readData(self):
+    def readDataFromCSV(self, filename):
+        ds = DataSearcher()
+        self.nhists = ds.lookingForNhists(filename)
+        self.filename = filename
         # Method shouldn't handle exceptions, just raise them
         with open(self.filename, 'r') as f:
             # Reading header

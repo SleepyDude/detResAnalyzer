@@ -13,7 +13,7 @@ def test_processHeader():
     '#annotation axis_x.title  [MeV]',\
     '#bin_number 12',\
     'entries,Sw,Sw2,Sxw0,Sx2w0']
-    dr = DetResult('test/filename.csv', 3e+6)
+    dr = DetResult()
     dr.processHeader(header)
     assert dr.title == "Fluence distribution on DiagDetPV-3-Spec detector"
     assert len(DetResult.BINS) == 1
@@ -27,7 +27,7 @@ def test_processHeader():
     '#annotation axis_x.title  [MeV]',\
     '#bin_number 12',\
     'entries,Sw,Sw2,Sxw0,Sx2w0']
-    dr2 = DetResult('abcde/fghi.csv', 13e+5)
+    dr2 = DetResult()
     dr2.processHeader(header)
     assert dr2.title == "second testtitle"
     assert len(DetResult.BINS) == 1
@@ -41,7 +41,7 @@ def test_processHeader():
     '#annotation axis_x.title  [MeV]',\
     '#bin_number 22',\
     'entries,Sw,Sw2,Sxw0,Sx2w0']
-    dr3 = DetResult('qwesdswe', 13e+5)
+    dr3 = DetResult()
     dr3.processHeader(header)
     assert dr3.title == "third-testtitle"
     assert len(DetResult.BINS) == 2
@@ -50,7 +50,7 @@ def test_processHeader():
 
     #Header exceptions:
     header = [""]*7 # empty file case
-    dr4 = DetResult('qwerty', 1)
+    dr4 = DetResult()
     with pytest.raises(CSVHeaderError):
         dr4.processHeader(header)
 
@@ -61,7 +61,7 @@ def test_processHeader():
     '#annotation axis_x.title  [MeV]',\
     '#bin_number 12',\
     'entries,Sw,Sw2,Sxw0,Sx2w0'] # vrong 1st string
-    dr5 = DetResult('qwerty', 1)
+    dr5 = DetResult()
     with pytest.raises(CSVHeaderError):
         dr5.processHeader(header)
 
@@ -72,15 +72,15 @@ def test_processHeader():
     '#annotation axis_x.title  [MeV]',\
     '#bin_number 12',\
     'entries,Sw,Sw2,Sxw0,Sx2w0'] # vrong 4th string
-    dr6 = DetResult('qwerty', 1)
+    dr6 = DetResult()
     with pytest.raises(CSVHeaderError):
         dr6.processHeader(header)
 
 def test_readData():
     filename = str(BASE_DIR.joinpath('tests/test_resources/tests_1/1 MeV 10kk/results-master_h1_DiagDetPV-3-Spec.csv'))
-    dr = DetResult(filename, 10e+6)
+    dr = DetResult()
     try:
-        dr.readData()
+        dr.readDataFromCSV(filename)
     except Exception as e:
         assert False, f"exception in test_readData: {e}"
     
