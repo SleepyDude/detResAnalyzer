@@ -1,3 +1,6 @@
+from anadet.detResult import DetResult
+from pathlib import Path
+
 class SourceProps:
     def __init__(self, energy: float, energyUnit: str):
         self.energy = energy
@@ -38,4 +41,22 @@ class Detector:
 
     def __init__(self, detProps):
         self.detProps = detProps
-        self.results = []
+        self.prima_results = [] # Contains only primary results, which were read from files on disk
+        self.wrong_results = []
+        self.addit_results = [] # Contains merge versions of results, different bins versions and other, links to primary
+
+    def appendResult(self, filename):
+        dr = DetResult()
+        try:
+            dr.readDataFromCSV(filename)
+        except Exception as e:
+            print(f"Can't read result from the file {Path(filename).name}, inner data is wrong\n{e}")
+            dr.clear()
+            self.wrong_results.append(filename)
+            return
+        dr.calculateStatistics()
+        self.prima_results.append(dr)
+
+    def mergeResults(self):
+        # let's try to merge all prima results
+        dr = DetResult()

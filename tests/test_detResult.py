@@ -116,3 +116,20 @@ def test_dataMerge():
     assert math.isclose( dr.y[3], 576.182 + 11508.3 + 17059.4, abs_tol=1e-4 )
     assert math.isclose( dr.overflow_top, 299.061 + 16435.7 + 17625.1, abs_tol=1e-4 )
     assert dr.nhists == 35e+6
+
+def test_statisticsCalculate():
+    dr = DetResult()
+    TEST_DIR = BASE_DIR.joinpath('tests/test_resources/filenames_and_grouping')
+    fname = str( TEST_DIR.joinpath('1 keV 6kk/someName_h1_SpecDetDiag-2.csv') )
+    dr.readDataFromCSV(fname)
+    dr.calculateStatistics()
+    assert len(dr.M) == len(dr.D) == len(dr.sigma) == len(dr.y) == len(dr.y2) == 10
+    assert math.isclose(dr.M[0], 1.02609e-4, rel_tol=1e-4)
+    assert math.isclose(dr.M[9], 3.890283333e-5, rel_tol=1e-4)
+    assert math.isclose(dr.D[0], 7.32211e-3, rel_tol=1e-4)
+    assert math.isclose(dr.D[9], 2.80447e-3, rel_tol=1e-4)
+    assert math.isclose(dr.sigma[0], 3.49335e-5, rel_tol=1e-4)
+    assert math.isclose(dr.sigma[9], 2.16197e-5, rel_tol=1e-4)
+    assert math.isclose(dr.delta[0], 3.40453e-1, rel_tol=1e-4)
+    assert math.isclose(dr.delta[9], 5.55736e-1, rel_tol=1e-4)
+    

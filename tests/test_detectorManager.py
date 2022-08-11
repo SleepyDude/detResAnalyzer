@@ -1,7 +1,6 @@
+from anadet.detResult import DetResult
 from anadet.detectorManager import DetectorManager
 from anadet.filesManager import FilesManager
-from pathlib import Path
-import pytest
 from pprint import pprint as pp
 from tests.config import BASE_DIR
 
@@ -15,6 +14,10 @@ def test_grouping():
     for filename in detector_filenames:
         dm.appendResults(str(filename))
     assert 'Spec|Diag-1|SRC:[1.00 keV]' in dm.detectors
-    assert len(dm.detectors['Spec|Diag-1|SRC:[1.00 keV]'].results) == 3
-    assert len(dm.detectors['Phi|Diag-1|SRC:[1.00 keV]'].results) == 2
-    assert len(dm.detectors['Spec|Diag-5|SRC:[0.50 MeV]'].results) == 1
+    assert len(dm.detectors['Spec|Diag-1|SRC:[1.00 keV]'].wrong_results) == 3
+    assert len(dm.detectors['Spec|Diag-1|SRC:[1.00 keV]'].prima_results) == 0
+    assert len(dm.detectors['Phi|Diag-1|SRC:[1.00 keV]'].prima_results) == 0
+    assert len(dm.detectors['Spec|Diag-5|SRC:[0.50 MeV]'].prima_results) == 0
+    
+    assert type(dm.detectors['Spec|Diag-2|SRC:[1.00 keV]'].prima_results[0]) == DetResult
+    assert len(dm.detectors['Spec|Diag-2|SRC:[1.00 keV]'].prima_results) == 3

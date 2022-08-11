@@ -39,6 +39,8 @@ class DetectorManager:
         key_name = Detector.createName(detProps)
         if key_name not in self.detectors:
             self.detectors[key_name] = Detector(detProps)
-        self.detectors[key_name].results.append(filename)
+        
+        # Now we have detector in the self.detectors list
+        self.detectors[key_name].appendResult(filename)
 
 

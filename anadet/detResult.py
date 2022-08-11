@@ -17,7 +17,8 @@ class DetResult:
     START_DATA_IDX = 7
     BINS = [] # some results share the same bin sequence
 
-    def __init__(self):
+    def __init__(self, name=''):
+        self.name = name
         self.clear()
 
     def readDataFromCSV(self, filename):
@@ -51,7 +52,6 @@ class DetResult:
 
     def processHeader(self, header: list):
         if header[0] != "#class tools::histo::h1d":
-            print("we expect h1 geant4 hist file")
             raise CSVHeaderError("HEADER ERROR: we expect tools::histo::h1d file")
         self.title = header[1][7:].strip()
         axis = header[3].split()
@@ -113,3 +113,10 @@ class DetResult:
         for i in range(self.data_size):
             self.y[i] += other.y[i]
             self.y2[i] += other.y2[i]
+
+    def calculateStatistics(self):
+        # TODO - need to make a state system - statistic calculate makes sence only after we deal with results object with data inside
+        self.M = [i/self.nhists for i in self.y]
+        self.D = [ self.y2[i]/(self.nhists-1) - self.y[i]*self.y[i]/(self.nhists-1)/(self.nhists) for i in range(self.data_size) ]
+        self.sigma = [math.sqrt(Di/self.nhists) for Di in self.D]
+        self.delta = [self.sigma[i]/self.M[i] for i in range(self.data_size)]
