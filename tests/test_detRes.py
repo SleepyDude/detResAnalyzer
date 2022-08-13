@@ -1,10 +1,10 @@
 import pytest
-from anadet.detResult import *
+from anadet.detRes import DetRes
 import math
 from pathlib import Path
 from tests.config import BASE_DIR
 
-def test_processHeader():
+def test_processCSVHeader():
     header = ['#class tools::histo::h1d',\
     '#title Fluence distribution on DiagDetPV-3-Spec detector',\
     '#dimension 1',\
@@ -12,12 +12,12 @@ def test_processHeader():
     '#annotation axis_x.title  [MeV]',\
     '#bin_number 12',\
     'entries,Sw,Sw2,Sxw0,Sx2w0']
-    dr = DetResult()
-    dr.processHeader(header)
-    assert dr.title == "Fluence distribution on DiagDetPV-3-Spec detector"
-    assert len(DetResult.BINS) == 1
-    assert len(DetResult.BINS[dr.bin_index]) == 11
-    assert math.isclose(DetResult.BINS[dr.bin_index][1], 1.06241e-12, rel_tol=1e-4)
+    dr = DetRes()
+    dr.processCSVHeader(header)
+    assert dr.data_size == 10
+    assert len(DetRes.BINS) == 1
+    assert len(DetRes.BINS[dr.bin_index]) == 11
+    assert math.isclose(DetRes.BINS[dr.bin_index][1], 1.06241e-12, rel_tol=1e-4)
 
     header = ['#class tools::histo::h1d',\
     '#title second testtitle',\
@@ -26,12 +26,11 @@ def test_processHeader():
     '#annotation axis_x.title  [MeV]',\
     '#bin_number 12',\
     'entries,Sw,Sw2,Sxw0,Sx2w0']
-    dr2 = DetResult()
-    dr2.processHeader(header)
-    assert dr2.title == "second testtitle"
-    assert len(DetResult.BINS) == 1
-    assert len(DetResult.BINS[dr2.bin_index]) == 11
-    assert math.isclose(DetResult.BINS[dr2.bin_index][1], 1.06241e-12, rel_tol=1e-4)
+    dr2 = DetRes()
+    dr2.processCSVHeader(header)
+    assert len(DetRes.BINS) == 1
+    assert len(DetRes.BINS[dr2.bin_index]) == 11
+    assert math.isclose(DetRes.BINS[dr2.bin_index][1], 1.06241e-12, rel_tol=1e-4)
 
     header = ['#class tools::histo::h1d',\
     '#title third-testtitle',\
@@ -40,18 +39,17 @@ def test_processHeader():
     '#annotation axis_x.title  [MeV]',\
     '#bin_number 22',\
     'entries,Sw,Sw2,Sxw0,Sx2w0']
-    dr3 = DetResult()
-    dr3.processHeader(header)
-    assert dr3.title == "third-testtitle"
-    assert len(DetResult.BINS) == 2
-    assert len(DetResult.BINS[dr3.bin_index]) == 21
-    assert math.isclose(DetResult.BINS[dr3.bin_index][1], 9, rel_tol=1e-4)
+    dr3 = DetRes()
+    dr3.processCSVHeader(header)
+    assert len(DetRes.BINS) == 2
+    assert len(DetRes.BINS[dr3.bin_index]) == 21
+    assert math.isclose(DetRes.BINS[dr3.bin_index][1], 9, rel_tol=1e-4)
 
     #Header exceptions:
     header = [""]*7 # empty file case
-    dr4 = DetResult()
-    with pytest.raises(CSVHeaderError):
-        dr4.processHeader(header)
+    dr4 = DetRes()
+    with pytest.raises(DetRes.CSVHeaderError):
+        dr4.processCSVHeader(header)
 
     header = ['#class tools::histo::h2d',\
     '#title second testtitle',\
@@ -60,9 +58,9 @@ def test_processHeader():
     '#annotation axis_x.title  [MeV]',\
     '#bin_number 12',\
     'entries,Sw,Sw2,Sxw0,Sx2w0'] # vrong 1st string
-    dr5 = DetResult()
-    with pytest.raises(CSVHeaderError):
-        dr5.processHeader(header)
+    dr5 = DetRes()
+    with pytest.raises(DetRes.CSVHeaderError):
+        dr5.processCSVHeader(header)
 
     header = ['#class tools::histo::h1d',\
     '#title second testtitle',\
@@ -71,34 +69,32 @@ def test_processHeader():
     '#annotation axis_x.title  [MeV]',\
     '#bin_number 12',\
     'entries,Sw,Sw2,Sxw0,Sx2w0'] # vrong 4th string
-    dr6 = DetResult()
-    with pytest.raises(CSVHeaderError):
-        dr6.processHeader(header)
+    dr6 = DetRes()
+    with pytest.raises(DetRes.CSVHeaderError):
+        dr6.processCSVHeader(header)
 
 def test_readData():
     filename = str(BASE_DIR.joinpath('tests/test_resources/tests_1/1 MeV 10kk/results-master_h1_DiagDetPV-3-Spec.csv'))
-    dr = DetResult()
+    dr = DetRes()
     try:
         dr.readDataFromCSV(filename)
     except Exception as e:
         assert False, f"exception in test_readData: {e}"
     
-    assert dr.title == "Fluence distribution on DiagDetPV-3-Spec detector"
     assert math.isclose(dr.overflow_bot, 871.143, rel_tol=1e-4)
     assert math.isclose(dr.overflow_top, 299.061, rel_tol=1e-4)
-    assert dr.data_size == 10
     assert len(dr.y) == len(dr.y2) == 10
-    assert len(DetResult.BINS[dr.bin_index]) == 11 # 10 data "y" + 1 for bottom edge => 11 edges
+    assert len(DetRes.BINS[dr.bin_index]) == 11 # 10 data "y" + 1 for bottom edge => 11 edges
     assert math.isclose(dr.y[0], 615.654, rel_tol=1e-4)
     assert math.isclose(dr.y[2], 618.079, rel_tol=1e-4)
     assert math.isclose(dr.y[9], 233.417, rel_tol=1e-4)
     assert math.isclose(dr.y2[0], 43932.7, rel_tol=1e-4)
     assert math.isclose(dr.y2[5], 8475.79, rel_tol=1e-4)
     
-def test_dataMerge():
-    dr1 = DetResult()
-    dr2 = DetResult()
-    dr3 = DetResult()
+def test_dataAppend():
+    dr1 = DetRes()
+    dr2 = DetRes()
+    dr3 = DetRes()
     TEST_DIR = BASE_DIR.joinpath('tests/test_resources/filenames_and_grouping')
     filename1 = str( TEST_DIR.joinpath('1 keV 6kk/someName_h1_SpecDetDiag-2.csv') )
     filename2 = str( TEST_DIR.joinpath('1 keV 10kk/someName_h1_SpecDetDiag-2.csv') )
@@ -107,7 +103,7 @@ def test_dataMerge():
     dr2.readDataFromCSV(filename2)
     dr3.readDataFromCSV(filename3)
 
-    dr = DetResult()
+    dr = DetRes()
     dr.appendData(dr1)
     dr.appendData(dr2)
     dr.appendData(dr3)
@@ -118,7 +114,7 @@ def test_dataMerge():
     assert dr.nhists == 35e+6
 
 def test_statisticsCalculate():
-    dr = DetResult()
+    dr = DetRes()
     TEST_DIR = BASE_DIR.joinpath('tests/test_resources/filenames_and_grouping')
     fname = str( TEST_DIR.joinpath('1 keV 6kk/someName_h1_SpecDetDiag-2.csv') )
     dr.readDataFromCSV(fname)

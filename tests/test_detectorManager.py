@@ -1,4 +1,4 @@
-from anadet.detResult import DetResult
+from anadet.detRes import DetRes
 from anadet.detectorManager import DetectorManager
 from anadet.filesManager import FilesManager
 from pprint import pprint as pp
@@ -19,5 +19,5 @@ def test_grouping():
     assert len(dm.detectors['Phi|Diag-1|SRC:[1.00 keV]'].prima_results) == 0
     assert len(dm.detectors['Spec|Diag-5|SRC:[0.50 MeV]'].prima_results) == 0
     
-    assert type(dm.detectors['Spec|Diag-2|SRC:[1.00 keV]'].prima_results[0]) == DetResult
     assert len(dm.detectors['Spec|Diag-2|SRC:[1.00 keV]'].prima_results) == 3
+    assert type(dm.detectors['Spec|Diag-2|SRC:[1.00 keV]'].prima_results[0]) == DetRes

@@ -1,4 +1,4 @@
-from anadet.detResult import DetResult
+from anadet.detRes import DetRes
 from pathlib import Path
 
 class SourceProps:
@@ -46,7 +46,7 @@ class Detector:
         self.addit_results = [] # Contains merge versions of results, different bins versions and other, links to primary
 
     def appendResult(self, filename):
-        dr = DetResult()
+        dr = DetRes(self.createName(self.detProps))
         try:
             dr.readDataFromCSV(filename)
         except Exception as e:
@@ -56,7 +56,3 @@ class Detector:
             return
         dr.calculateStatistics()
         self.prima_results.append(dr)
-
-    def mergeResults(self):
-        # let's try to merge all prima results
-        dr = DetResult()
