@@ -14,7 +14,6 @@ def test_processCSVHeader():
     'entries,Sw,Sw2,Sxw0,Sx2w0']
     dr = DetRes()
     dr.processCSVHeader(header)
-    assert dr.data_size == 10
     assert len(DetRes.BINS) == 1
     assert len(DetRes.BINS[dr.bin_index]) == 11
     assert math.isclose(DetRes.BINS[dr.bin_index][1], 1.06241e-12, rel_tol=1e-4)

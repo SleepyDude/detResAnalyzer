@@ -39,7 +39,6 @@ class DetRes:
         self.overflow_bot = 0
         self.overflow_top = 0
         self.bin_index = None
-        self.data_size = 0
         self.nhists = 0
         # other
         self.origin_sequence = []
@@ -78,13 +77,13 @@ class DetRes:
             header = list()
             for _ in range(START_DATA_IDX):
                 header.append(f.readline().strip())
-            self.processCSVHeader(header) # could throw an exception
+            data_size = self.processCSVHeader(header) # could throw an exception
             # Reading bottom overflow
             self.overflow_bot = float(f.readline().strip().split(',')[1]) # Sw
             # Reading data
             self.y = []
             self.y2 = []
-            for _ in range(self.data_size):
+            for _ in range(data_size):
                 line = f.readline().strip()
                 print(line)
                 if not line:
@@ -98,7 +97,7 @@ class DetRes:
             self.overflow_top = float(f.readline().strip().split(',')[1]) # Sw
         self.origin_sequence.append(f"READ: {filename}")
     
-    def processCSVHeader(self, header: list):
+    def processCSVHeader(self, header: list) -> int:
         if header[0] != "#class tools::histo::h1d":
             raise self.CSVHeaderError("HEADER ERROR: we expect tools::histo::h1d file")
         axis = header[3].split()
@@ -111,14 +110,14 @@ class DetRes:
         else:
             raise self.CSVHeaderError(f"HEADER ERROR: axis type should be 'edges' of 'fixed', but '{axis[1]}' got")
         self.bin_index = self.getBinsIndex(bins)
-        self.data_size = int(header[5].split()[1]) - 2
+        data_size = int(header[5].split()[1]) - 2
+        return data_size
 
     def appendData(self, other: 'DetRes'):
         if len(self.y) == 0: # append data to the new result object, need to prepare data structures to fit the other data
             self.bin_index = other.bin_index
             self.y  = [0.0 for _ in other.y]
             self.y2 = [0.0 for _ in other.y2]
-            self.data_size = other.data_size
         if self.bin_index != other.bin_index:
             raise self.AppendResError(f"APPEND ERROR: can't append data with different bins")
         if len(self.y) != len(other.y):
