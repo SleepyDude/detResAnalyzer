@@ -50,7 +50,7 @@ class Detector:
         try:
             dr.readDataFromCSV(filename)
         except Exception as e:
-            print(f"Can't read result from the file {Path(filename).name}, inner data is wrong\n{e}")
+            # print(f"Can't read result from the file {Path(filename).name}, inner data is wrong\n{e}")
             dr.clear()
             self.wrong_results.append(filename)
             return

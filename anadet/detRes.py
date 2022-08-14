@@ -1,5 +1,7 @@
 import math
 from anadet.dataSearcher import DataSearcher
+from pathlib import Path
+from typing import List
 
 class DetRes:
     """
@@ -49,18 +51,21 @@ class DetRes:
         for i in range(len(cls.BINS)):
             if len(cls.BINS[i]) != len(abins):
                 continue
+            bins_found = True
             for pair in zip(cls.BINS[i], abins):
                 if not math.isclose(pair[0], pair[1], rel_tol=1e-4):
-                    continue
+                    bins_found = False
+                    break
             # If we here - we found bins
-            return i
+            if bins_found:
+                return i
         # We are not found the same bins, so we append a new and return it's index
         cls.BINS.append(abins)
         return len(cls.BINS)-1
 
     def __str__(self):
         if len(self.origin_sequence):
-            return f"<DetRes {self.name} origin={self.origin_sequence[-1]}>"
+            return f"<DetRes {self.name} origin={self.origin_sequence}>"
         else:
             return f"<DetRes {self.name} EMPTY DATA>"
 
@@ -85,7 +90,6 @@ class DetRes:
             self.y2 = []
             for _ in range(data_size):
                 line = f.readline().strip()
-                print(line)
                 if not line:
                     continue # case of empty strings at the end of the file
                 items = list(map(float, line.split(',')))
@@ -95,7 +99,7 @@ class DetRes:
                 self.y2.append(items[2])
             # Reading top overflow
             self.overflow_top = float(f.readline().strip().split(',')[1]) # Sw
-        self.origin_sequence.append(f"READ: {filename}")
+        self.origin_sequence.append(f"READ: {Path(filename).as_posix()}")
     
     def processCSVHeader(self, header: list) -> int:
         if header[0] != "#class tools::histo::h1d":
@@ -136,4 +140,8 @@ class DetRes:
         self.M = [i/self.nhists for i in self.y]
         self.D = [ self.y2[i]/(self.nhists-1) - self.y[i]*self.y[i]/(self.nhists-1)/(self.nhists) for i in range(len(self.y)) ]
         self.sigma = [math.sqrt(Di/self.nhists) for Di in self.D]
-        self.delta = [self.sigma[i]/self.M[i] for i in range(len(self.y))]
+        # TODO - zero division problem, need to indicate, is the value a zero or just a small value
+        # self.delta = [self.sigma[i]/self.M[i] for i in range(len(self.y)) if self.M[i] ]
+
+    def createChild(self, bins: List[float]) -> 'DetRes':
+        return DetRes()
