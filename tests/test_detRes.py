@@ -135,9 +135,8 @@ def test_statisticsCalculate():
     assert math.isclose(dr.D[9], 2.80447e-3, rel_tol=1e-4)
     assert math.isclose(dr.sigma[0], 3.49335e-5, rel_tol=1e-4)
     assert math.isclose(dr.sigma[9], 2.16197e-5, rel_tol=1e-4)
-    # TODO - return this after fix
-    #assert math.isclose(dr.delta[0], 3.40453e-1, rel_tol=1e-4)
-    #assert math.isclose(dr.delta[9], 5.55736e-1, rel_tol=1e-4)
+    assert math.isclose(dr.delta[0], 3.40453e-1, rel_tol=1e-4)
+    assert math.isclose(dr.delta[9], 5.55736e-1, rel_tol=1e-4)
     
 def test_createChild_1():
     dr = DetRes()

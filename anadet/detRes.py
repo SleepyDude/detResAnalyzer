@@ -141,7 +141,10 @@ class DetRes:
         self.D = [ self.y2[i]/(self.nhists-1) - self.y[i]*self.y[i]/(self.nhists-1)/(self.nhists) for i in range(len(self.y)) ]
         self.sigma = [math.sqrt(Di/self.nhists) for Di in self.D]
         # TODO - zero division problem, need to indicate, is the value a zero or just a small value
-        # self.delta = [self.sigma[i]/self.M[i] for i in range(len(self.y)) if self.M[i] ]
+        self.delta = [0.0 for _ in range(len(self.y))]
+        for i in range(len(self.y)):
+            if not math.isclose(self.M[i], 0, abs_tol=1e-14):
+                self.delta[i] = self.sigma[i]/self.M[i]
 
     def setData(self, **data):
         if  'y' not in data or\
@@ -213,72 +216,3 @@ class DetRes:
         chd = DetRes()
         chd.setData(y=chd_y, y2=chd_y2, overflow_bot=chd_ovf_bot, overflow_top=chd_ovf_top, nhists=self.nhists, bins=abins, origin=f'CHILD from {self}')
         return chd
-        
-
-
-# def createChild(self, abins: List[float]) -> 'DetRes':
-#         chd_y = [0.0 for _ in range(len(abins) - 1)]
-#         chd_y2 = [0.0 for _ in range(len(abins) - 1)]
-#         chd_ovf_top = self.overflow_top
-#         chd_ovf_bot = self.overflow_bot
-
-#         # start positions
-#         bin_i = 1
-#         chd_bin_i = 1
-#         bot_edge = self.BINS[self.bin_index][bin_i-1]
-#         top_edge = self.BINS[self.bin_index][bin_i]
-#         chd_bot_edge = abins[chd_bin_i-1]
-#         chd_top_edge = abins[chd_bin_i]
-#         left_cut = bot_edge
-
-#         while bin_i < len(self.BINS[self.bin_index]) and\
-#               chd_bin_i < len(abins):
-#             if chd_top_edge <= bot_edge:
-#                 chd_bin_i += 1 # go to next child bin
-#                 chd_bot_edge = abins[chd_bin_i-1]
-#                 chd_top_edge = abins[chd_bin_i]
-#                 continue
-#             if top_edge <= chd_bot_edge:
-#                 chd_ovf_bot += self.y[bin_i-1]
-#                 bin_i += 1 # go to next self bin
-#                 bot_edge = self.BINS[self.bin_index][bin_i-1]
-#                 top_edge = self.BINS[self.bin_index][bin_i]
-#                 left_cut = bot_edge
-#                 continue
-#             # now two bins intersect each other
-#             if chd_bot_edge > bot_edge and chd_bin_i == 1: # first bin, so we will append overflow_bot
-#                 part = (chd_bot_edge - left_cut) / (top_edge - bot_edge)
-#                 chd_ovf_bot += part * self.y[bin_i-1]
-#                 left_cut = chd_bot_edge
-            
-#             if chd_bot_edge > bot_edge: # cases 2, 3, (5)
-#                 left_cut = chd_bot_edge
-#             # left_cut is on the place
-#             if chd_top_edge < top_edge: # cases 1, 3
-#                 part = (chd_top_edge - left_cut) / (top_edge - bot_edge)
-#                 chd_y[chd_bin_i-1] += part * self.y[bin_i-1]
-#                 chd_y2[chd_bin_i-1] += part * self.y2[bin_i-1]
-#                 left_cut = chd_top_edge
-#                 chd_bin_i += 1 # go to next child bin
-#                 chd_bot_edge = abins[chd_bin_i-1]
-#                 chd_top_edge = abins[chd_bin_i]
-#                 continue
-#             else: # cases 2, 4
-#                 part = (top_edge - left_cut) / (top_edge - bot_edge)
-#                 chd_y[chd_bin_i-1] += part * self.y[bin_i-1]
-#                 chd_y2[chd_bin_i-1] += part * self.y2[bin_i-1]
-#                 bin_i += 1 # go to next self bin
-#                 bot_edge = self.BINS[self.bin_index][bin_i-1]
-#                 top_edge = self.BINS[self.bin_index][bin_i]
-#                 left_cut = bot_edge
-#                 continue
-#         while bin_i < len(self.BINS[self.bin_index]): #case when some bins remains
-#             bot_edge = self.BINS[self.bin_index][bin_i-1]
-#             top_edge = self.BINS[self.bin_index][bin_i]
-#             part = (top_edge - left_cut) / (top_edge - bot_edge)
-#             chd_ovf_top += part * self.y[bin_i-1]
-#             left_cut = top_edge
-#             bin_t += 1
-#         chd = DetRes()
-#         chd.setData(y=chd_y, y2=chd_y2, overflow_bot=chd_ovf_bot, overflow_top=chd_ovf_top, nhists=self.nhists, bins=abins, origin=f'CHILD from {self}')
-#         return chd
