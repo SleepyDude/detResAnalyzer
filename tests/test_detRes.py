@@ -1,8 +1,14 @@
 import pytest
-from anadet.detRes import DetRes
 import math
+# from tests.config import BASE_DIR
 from pathlib import Path
-from tests.config import BASE_DIR
+import sys
+
+BASE_DIR = Path(__file__).resolve().parent.parent
+sys.path.append(str(BASE_DIR))
+
+from anadet.detRes import DetRes
+
 
 def test_processCSVHeader():
     header = ['#class tools::histo::h1d',\
@@ -139,7 +145,6 @@ def test_createChild_1():
     fname = str(TEST_DIR.joinpath("0.5 MeV 8kk/someName_h1_DetDiagPhi-1.csv"))
     dr.readDataFromCSV(fname)
     assert len(dr.BINS[dr.bin_index]) == 21
-    print(dr.BINS[dr.bin_index])
     assert math.isclose(dr.BINS[dr.bin_index][3], 1.5, rel_tol=1e-4)
     assert math.isclose(dr.y[4], 30, rel_tol=1e-4)
     assert math.isclose(dr.y2[4], 50, rel_tol=1e-4)
@@ -170,19 +175,21 @@ def test_createChild_1():
     assert math.isclose(drChild2.y2[10], 0, rel_tol=1e-4)
 
     # irregular bin case
+    #    yi          0    1    2    3    4    5    6  7
+    #    xi     0    1    2    3    4    5    6    7  8
     bins3 = [-3.0, 0.3, 0.9, 1.3, 1.9, 2.1, 2.3, 3.3, 8]
     drChild3 = dr.createChild(bins3)
-    assert math.isclose(drChild3.y[4], 0, rel_tol=1e-4)
-    assert math.isclose(drChild3.y[5], 3, rel_tol=1e-4)
-    assert math.isclose(drChild3.y[6], 6, rel_tol=1e-4)
-    assert math.isclose(drChild3.y[7], 6, rel_tol=1e-4)
-    assert math.isclose(drChild3.y[8], 0, rel_tol=1e-4)
+    assert math.isclose(drChild3.y[3], 0, rel_tol=1e-4)
+    assert math.isclose(drChild3.y[4], 6, rel_tol=1e-4)
+    assert math.isclose(drChild3.y[5], 12, rel_tol=1e-4)
+    assert math.isclose(drChild3.y[6], 12, rel_tol=1e-4)
+    assert math.isclose(drChild3.y[7], 0, rel_tol=1e-4)
 
-    assert math.isclose(drChild3.y2[4], 0, rel_tol=1e-4)
-    assert math.isclose(drChild3.y2[5], 10, rel_tol=1e-4)
+    assert math.isclose(drChild3.y2[3], 0, rel_tol=1e-4)
+    assert math.isclose(drChild3.y2[4], 10, rel_tol=1e-4)
+    assert math.isclose(drChild3.y2[5], 20, rel_tol=1e-4)
     assert math.isclose(drChild3.y2[6], 20, rel_tol=1e-4)
-    assert math.isclose(drChild3.y2[7], 20, rel_tol=1e-4)
-    assert math.isclose(drChild3.y2[8], 0, rel_tol=1e-4)
+    assert math.isclose(drChild3.y2[7], 0, rel_tol=1e-4)
 
 def test_createChild_2():
     dr = DetRes()
@@ -227,7 +234,7 @@ def test_createChild_2():
     assert math.isclose(drChild2.y2[2], 60, rel_tol=1e-4)
 
     assert math.isclose(drChild2.overflow_bot, 0, rel_tol=1e-4)
-    assert math.isclose(drChild2.overflow_top, 21, rel_tol=1e-4)
+    assert math.isclose(drChild2.overflow_top, 26, rel_tol=1e-4)
 
     # irregular bin case
     #    yi          0    1    2    3    4    5    6    7    8    9   10   11   12   13 14   15
@@ -237,28 +244,28 @@ def test_createChild_2():
     # test y          0    0    0   16   30   20    5    0    0   18   
     # test y2         0    0    0   15   50   10   60    0    0   16
     drChild3 = dr.createChild(bins3)
-    assert math.isclose(drChild3.y[6], 0, rel_tol=1e-4)
-    assert math.isclose(drChild3.y[7], 4.8, rel_tol=1e-4)
-    assert math.isclose(drChild3.y[8], 9.6, rel_tol=1e-4)
-    assert math.isclose(drChild3.y[9], 1.6+12, rel_tol=1e-4)
-    assert math.isclose(drChild3.y[10], 3, rel_tol=1e-4)
-    assert math.isclose(drChild3.y[11], 9, rel_tol=1e-4)
-    assert math.isclose(drChild3.y[12], 6+4, rel_tol=1e-4)
-    assert math.isclose(drChild3.y[13], 16+4.5, rel_tol=1e-4)
-    assert math.isclose(drChild3.y[14], 0.5, rel_tol=1e-4)
-    assert math.isclose(drChild3.y[15], 0.0, rel_tol=1e-4)
-    assert math.isclose(drChild3.y[16], 10.8, rel_tol=1e-4)
+    assert math.isclose(drChild3.y[5], 0, rel_tol=1e-4)
+    assert math.isclose(drChild3.y[6], 4.8, rel_tol=1e-4)
+    assert math.isclose(drChild3.y[7], 9.6, rel_tol=1e-4)
+    assert math.isclose(drChild3.y[8], 1.6+12, rel_tol=1e-4)
+    assert math.isclose(drChild3.y[9], 3, rel_tol=1e-4)
+    assert math.isclose(drChild3.y[10], 9, rel_tol=1e-4)
+    assert math.isclose(drChild3.y[11], 6+4, rel_tol=1e-4)
+    assert math.isclose(drChild3.y[12], 16+4.5, rel_tol=1e-4)
+    assert math.isclose(drChild3.y[13], 0.5, rel_tol=1e-4)
+    assert math.isclose(drChild3.y[14], 0.0, rel_tol=1e-4)
+    assert math.isclose(drChild3.y[15], 10.8, rel_tol=1e-4)
 
-    assert math.isclose(drChild2.overflow_top, 10.2, rel_tol=1e-4)
+    assert math.isclose(drChild3.overflow_top, 10.2, rel_tol=1e-4)
 
-    assert math.isclose(drChild3.y2[6], 0, rel_tol=1e-4)
-    assert math.isclose(drChild3.y2[7], 4.5, rel_tol=1e-4) # 0.3 * 15
-    assert math.isclose(drChild3.y2[8], 9.0, rel_tol=1e-4) # 0.6 * 15
-    assert math.isclose(drChild3.y2[9], 1.5+20, rel_tol=1e-4) # 0.1 * 15 + 0.4 * 50
-    assert math.isclose(drChild3.y2[10], 5, rel_tol=1e-4) # 0.1 * 50
-    assert math.isclose(drChild3.y2[11], 15, rel_tol=1e-4) # 0.3 * 50
-    assert math.isclose(drChild3.y2[12], 10+2, rel_tol=1e-4) # 0.2 * 50 + 0.2 * 10
-    assert math.isclose(drChild3.y2[13], 8+54, rel_tol=1e-4) # 0.8 * 10 + 0.9 * 60
-    assert math.isclose(drChild3.y2[14], 6, rel_tol=1e-4) # 0.1 * 60 
-    assert math.isclose(drChild3.y2[15], 0.0, rel_tol=1e-4)
-    assert math.isclose(drChild3.y2[16], 9.6, rel_tol=1e-4)
+    assert math.isclose(drChild3.y2[5], 0, rel_tol=1e-4)
+    assert math.isclose(drChild3.y2[6], 4.5, rel_tol=1e-4) # 0.3 * 15
+    assert math.isclose(drChild3.y2[7], 9.0, rel_tol=1e-4) # 0.6 * 15
+    assert math.isclose(drChild3.y2[8], 1.5+20, rel_tol=1e-4) # 0.1 * 15 + 0.4 * 50
+    assert math.isclose(drChild3.y2[9], 5, rel_tol=1e-4) # 0.1 * 50
+    assert math.isclose(drChild3.y2[10], 15, rel_tol=1e-4) # 0.3 * 50
+    assert math.isclose(drChild3.y2[11], 10+2, rel_tol=1e-4) # 0.2 * 50 + 0.2 * 10
+    assert math.isclose(drChild3.y2[12], 8+54, rel_tol=1e-4) # 0.8 * 10 + 0.9 * 60
+    assert math.isclose(drChild3.y2[13], 6, rel_tol=1e-4) # 0.1 * 60 
+    assert math.isclose(drChild3.y2[14], 0.0, rel_tol=1e-4) 
+    assert math.isclose(drChild3.y2[15], 9.6, rel_tol=1e-4)

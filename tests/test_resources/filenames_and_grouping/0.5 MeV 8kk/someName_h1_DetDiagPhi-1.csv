@@ -3,7 +3,7 @@
 #dimension 1
 #axis fixed 20 0 10
 #annotation axis_x.title  [MeV]
-#bin_number 20
+#bin_number 22
 entries,Sw,Sw2,Sxw0,Sx2w0
 0,0,0,0,0
 0,0,0,0,0
