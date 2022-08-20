@@ -4,6 +4,7 @@ import math
 # from tests.config import BASE_DIR
 from pathlib import Path
 import sys
+from pprint import pprint as pp
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 sys.path.append(str(BASE_DIR))
@@ -319,6 +320,7 @@ def test_strip():
     dr.setData(**test_data)
 
     ch = dr.strip()
+    print(ch.BINS[ch.bin_index])
     assert len(ch.BINS[ch.bin_index]) == 11
     assert len(ch.y) == 10
     assert math.isclose(ch.BINS[ch.bin_index][0], 10.11, abs_tol=1e-14)
@@ -333,8 +335,6 @@ def test_strip():
     assert math.isclose(ch.y2[1], dr.y2[4], abs_tol=1e-14)
     assert math.isclose(ch.y2[9], dr.y2[12], abs_tol=1e-14)
 
-
-
 def test_shrinkToDelta():
     dr = DetRes()
     TEST_DIR = BASE_DIR.joinpath('tests/test_resources/shrinkTest')
@@ -347,14 +347,69 @@ def test_shrinkToDelta():
     assert math.isclose(dr.y2[95], 22938, abs_tol=1e-14)
     
     dr.calculateStatistics()
-    
     ch = dr.shrinkToDelta(0.1)
     assert ch.stat.delta_max <= 0.1 # rel. mistake less than 10% in every bin
-    assert len(ch.BINS[ch.bin_index]) == 386
-    assert len(ch.y) == 385
+    assert len(ch.BINS[ch.bin_index]) == 306
+    assert len(ch.y) == 305
     bP = dr.BINS[dr.bin_index]
     bC = ch.BINS[ch.bin_index]
     assert math.isclose(bP[0], bC[0], abs_tol=1e-14)
+    assert math.isclose(bP[103], bC[1], abs_tol=1e-14)
+    assert math.isclose(bP[109], bC[2], abs_tol=1e-14)
+    assert math.isclose(bP[113], bC[3], abs_tol=1e-14)
+    assert math.isclose(bP[116], bC[4], abs_tol=1e-14)
+    assert math.isclose(bP[118], bC[5], abs_tol=1e-14)
+    assert math.isclose(bP[120], bC[6], abs_tol=1e-14)
+    assert math.isclose(bP[122], bC[7], abs_tol=1e-14)
+    assert math.isclose(bP[123], bC[8], abs_tol=1e-14)
+    assert math.isclose(bP[124], bC[9], abs_tol=1e-14)
+    assert math.isclose(bP[125], bC[10], abs_tol=1e-14)
+
+    assert math.isclose(ch.y[0], 7364.39648, abs_tol=1e-14)
+    assert math.isclose(ch.y[1], 8701.235, abs_tol=1e-14)
+    assert math.isclose(ch.y[2], 9749.82, abs_tol=1e-14)
+    assert math.isclose(ch.y[3], 10828.34, abs_tol=1e-14)
+    assert math.isclose(ch.y[4], 9140.85, abs_tol=1e-14)
+    assert math.isclose(ch.y[5], 11809.42, abs_tol=1e-14)
+    assert math.isclose(ch.y[6], 14910.89, abs_tol=1e-14)
+    assert math.isclose(ch.y[7], dr.y[122], abs_tol=1e-14)
+    assert math.isclose(ch.y[8], dr.y[123], abs_tol=1e-14)
+    assert math.isclose(ch.y[9], dr.y[124], abs_tol=1e-14)
+    assert math.isclose(ch.y[10], dr.y[125], abs_tol=1e-14)
+    assert math.isclose(ch.y[-1], 0, abs_tol=1e-14)
+
+    assert math.isclose(ch.y2[0], 528899.9598, abs_tol=1e-14)
+    assert math.isclose(ch.y2[1], 625568.4, abs_tol=1e-14)
+    assert math.isclose(ch.y2[2], 720508, abs_tol=1e-14)
+    assert math.isclose(ch.y2[3], 791811, abs_tol=1e-14)
+    assert math.isclose(ch.y2[4], 683847, abs_tol=1e-14)
+    assert math.isclose(ch.y2[5], 856573, abs_tol=1e-14)
+    assert math.isclose(ch.y2[6], 1094181, abs_tol=1e-14)
+    assert math.isclose(ch.y2[7], dr.y2[122], abs_tol=1e-14)
+    assert math.isclose(ch.y2[8], dr.y2[123], abs_tol=1e-14)
+    assert math.isclose(ch.y2[9], dr.y2[124], abs_tol=1e-14)
+    assert math.isclose(ch.y2[10], dr.y2[125], abs_tol=1e-14)
+
+def test_strip_and_shrink():
+    dr = DetRes()
+    TEST_DIR = BASE_DIR.joinpath('tests/test_resources/shrinkTest')
+    fname = str(TEST_DIR.joinpath("100 keV 15kk 8/results-master_h1_VertDetPV-1-Spec.csv"))
+    dr.readDataFromCSV(fname)
+    assert len(dr.BINS[dr.bin_index]) == 501
+    assert len(dr.y) == 500
+    assert math.isclose(dr.BINS[dr.bin_index][3], 1.19916e-12, abs_tol=1e-14)
+    assert math.isclose(dr.y[95], 400.511, abs_tol=1e-14)
+    assert math.isclose(dr.y2[95], 22938, abs_tol=1e-14)
+    
+    dr.calculateStatistics()
+    ch = dr.strip()
+    ch = ch.shrinkToDelta(0.1)
+    assert ch.stat.delta_max <= 0.1 # rel. mistake less than 10% in every bin
+    assert len(ch.BINS[ch.bin_index]) == 305
+    assert len(ch.y) == 304
+    bP = dr.BINS[dr.bin_index]
+    bC = ch.BINS[ch.bin_index]
+    assert math.isclose(bP[33], bC[0], abs_tol=1e-14)
     assert math.isclose(bP[103], bC[1], abs_tol=1e-14)
     assert math.isclose(bP[109], bC[2], abs_tol=1e-14)
     assert math.isclose(bP[113], bC[3], abs_tol=1e-14)
@@ -389,5 +444,3 @@ def test_shrinkToDelta():
     assert math.isclose(ch.y2[8], dr.y2[123], abs_tol=1e-14)
     assert math.isclose(ch.y2[9], dr.y2[124], abs_tol=1e-14)
     assert math.isclose(ch.y2[10], dr.y2[125], abs_tol=1e-14)
-
-    

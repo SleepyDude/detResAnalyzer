@@ -256,8 +256,44 @@ class DetRes:
         return chd
 
     def strip(self) -> 'DetRes':
-        return DetRes()
+        left_bin_i = 0
+        right_bin_i = 1
+        left_found = False
+        for i in range(len(self.y)):
+            if self.y[i] > 0:
+                if not left_found:
+                    left_found = True
+                    left_bin_i = i
+                right_bin_i = i+1
+        chd_y = self.y[left_bin_i:right_bin_i]
+        chd_y2 = self.y2[left_bin_i:right_bin_i]
+        chd_ovf_bot = self.overflow_bot
+        chd_ovf_top = self.overflow_top
+        chd_bins = self.BINS[self.bin_index][left_bin_i:right_bin_i+1]
+        chd_origin = f"STRIP from {self}"
+        chd = DetRes()
+        chd.setData(y=chd_y, y2=chd_y2, overflow_bot=chd_ovf_bot, overflow_top=chd_ovf_top, nhists=self.stat.nhists, bins=chd_bins, origin=chd_origin)
+        return chd
 
     def shrinkToDelta(self, delta_max=0.1) -> 'DetRes':
-        return DetRes()
-
+        left_bin_i = 0
+        right_bin_i = 0
+        integral_y = 0
+        integral_y2 = 0
+        res_bins = []
+        res_bins.append(self.BINS[self.bin_index][left_bin_i])
+        for i in range(len(self.y)):
+            right_bin_i += 1
+            if self.y[i] == 0:
+                continue # skip iteration
+            integral_y += self.y[i]
+            integral_y2 += self.y2[i]
+            integral_delta = self.calcDelta(integral_y, integral_y2, self.stat.nhists)
+            if integral_delta <= delta_max:
+                res_bins.append(self.BINS[self.bin_index][right_bin_i])
+                left_bin_i = right_bin_i
+                integral_y = 0
+                integral_y2 = 0
+        if not math.isclose(res_bins[-1], self.BINS[self.bin_index][-1], abs_tol=1e-14): # we should save prev edges
+            res_bins.append(self.BINS[self.bin_index][right_bin_i])
+        return self.createChild(res_bins)
