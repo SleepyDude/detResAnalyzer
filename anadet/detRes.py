@@ -1,8 +1,22 @@
 from cmath import isclose
+from dataclasses import dataclass
 import math
 from anadet.dataSearcher import DataSearcher
 from pathlib import Path
 from typing import List
+from dataclasses import dataclass, field
+
+@dataclass
+class StatisticData:
+    nhists: int
+    means: List[float] = field(default_factory=list)
+    variances: List[float] = field(default_factory=list)
+    st_devs: List[float] = field(default_factory=list) # sigma
+    deltas: List[float] = field(default_factory=list)
+    # some params
+    delta_min: float = math.inf
+    delta_max: float = - math.inf
+    has_calculated: bool = False
 
 class DetRes:
     """
@@ -27,6 +41,22 @@ class DetRes:
 
     class AppendResError(Exception):
         ...
+    
+    @staticmethod
+    def calcVar(y: float, y2: float, nhists: int):
+        if nhists <= 1:
+            print("Warning: nhists <= 1")
+            return 0
+        return y2/(nhists-1) - y*y/(nhists-1)/nhists
+
+    @staticmethod
+    def calcDelta(y: float, y2: float, nhists: int):
+        if math.isclose(y, 0, abs_tol=1e-14):
+            return 0
+        var = DetRes.calcVar(y, y2, nhists)
+        sigma = math.sqrt(var / nhists)
+        M = y / nhists
+        return sigma / M
 
     BINS = [] # some results share the same bin sequence
 
@@ -41,9 +71,11 @@ class DetRes:
         self.overflow_bot = 0
         self.overflow_top = 0
         self.bin_index = None
-        self.nhists = 0
+        # statistic
+        self.stat = StatisticData(nhists=0)
         # other
         self.origin_sequence = []
+        self.state = dict()
 
     @classmethod
     def getBinsIndex(cls, abins):
@@ -71,10 +103,10 @@ class DetRes:
 
     def readDataFromCSV(self, filename):
         START_DATA_IDX = 7
-        if not self.nhists:
+        if not self.stat.nhists:
             ds = DataSearcher()
-            self.nhists = ds.lookingForNhists(filename)
-            if not self.nhists:
+            self.stat.nhists = ds.lookingForNhists(filename)
+            if not self.stat.nhists:
                 raise Exception(f'ERROR NHISTS: could not find num of histories in {filename}, set it previously of put it into the filename')
         # Method shouldn't handle exceptions, just raise them
         with open(filename, 'r') as f:
@@ -130,21 +162,26 @@ class DetRes:
         self.origin_sequence.append(f"APPEND: {other}")
         self.overflow_bot += other.overflow_bot
         self.overflow_top += other.overflow_top
-        self.nhists += other.nhists
+        self.stat.nhists += other.stat.nhists
         for i in range(len(self.y)):
             self.y[i] += other.y[i]
             self.y2[i] += other.y2[i]
 
     def calculateStatistics(self):
         # TODO - need to make a state system - statistic calculate makes sence only after we deal with results object with data inside
-        self.M = [i/self.nhists for i in self.y]
-        self.D = [ self.y2[i]/(self.nhists-1) - self.y[i]*self.y[i]/(self.nhists-1)/(self.nhists) for i in range(len(self.y)) ]
-        self.sigma = [math.sqrt(Di/self.nhists) for Di in self.D]
+        self.stat.means = [i/self.stat.nhists for i in self.y]
+        self.stat.variances = [ self.calcVar(self.y[i], self.y2[i], self.stat.nhists) for i in range(len(self.y)) ]
+        self.stat.st_devs = [math.sqrt(Di/self.stat.nhists) for Di in self.stat.variances]
         # TODO - zero division problem, need to indicate, is the value a zero or just a small value
-        self.delta = [0.0 for _ in range(len(self.y))]
+        self.stat.deltas = [0.0 for _ in range(len(self.y))]
         for i in range(len(self.y)):
-            if not math.isclose(self.M[i], 0, abs_tol=1e-14):
-                self.delta[i] = self.sigma[i]/self.M[i]
+            if not math.isclose(self.stat.means[i], 0, abs_tol=1e-14):
+                self.stat.deltas[i] = self.stat.st_devs[i]/self.stat.means[i]
+                if self.stat.deltas[i] > self.stat.delta_max:
+                    self.stat.delta_max = self.stat.deltas[i]
+                if self.stat.deltas[i] < self.stat.delta_min:
+                    self.stat.delta_min = self.stat.deltas[i]
+        self.stat.has_calculated = True
 
     def setData(self, **data):
         if  'y' not in data or\
@@ -160,9 +197,10 @@ class DetRes:
         self.y2 = data['y2']
         self.overflow_bot = data['overflow_bot']
         self.overflow_top = data['overflow_top']
-        self.nhists = data['nhists']
+        self.stat.nhists = data['nhists']
         self.origin_sequence.append(data['origin'])
         self.bin_index = self.getBinsIndex(data['bins'])
+        self.stat.has_calculated = False
 
     def createChild(self, abins: List[float]) -> 'DetRes':
         chd_y = [0.0 for _ in range(len(abins) - 1)]
@@ -208,11 +246,18 @@ class DetRes:
                 bin_i += 1 # go to next self bin
                 left_cut = self.BINS[self.bin_index][bin_i-1]
                 continue
-        while bin_i < len(self.BINS[self.bin_index]): #case when some bins remains
+        while bin_i < len(self.BINS[self.bin_index]): #case when some bins remain
             part = (self.BINS[self.bin_index][bin_i] - left_cut) / (self.BINS[self.bin_index][bin_i] - self.BINS[self.bin_index][bin_i-1])
             chd_ovf_top += part * self.y[bin_i-1]
             left_cut = self.BINS[self.bin_index][bin_i]
             bin_i += 1
         chd = DetRes()
-        chd.setData(y=chd_y, y2=chd_y2, overflow_bot=chd_ovf_bot, overflow_top=chd_ovf_top, nhists=self.nhists, bins=abins, origin=f'CHILD from {self}')
+        chd.setData(y=chd_y, y2=chd_y2, overflow_bot=chd_ovf_bot, overflow_top=chd_ovf_top, nhists=self.stat.nhists, bins=abins, origin=f'CHILD from {self}')
         return chd
+
+    def strip(self) -> 'DetRes':
+        return DetRes()
+
+    def shrinkToDelta(self, delta_max=0.1) -> 'DetRes':
+        return DetRes()
+

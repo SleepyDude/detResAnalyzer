@@ -19,7 +19,3 @@ class Crawler:
             else:
                 filelist.extend(self._getFiles(item))
         return filelist
-
-
-
-        

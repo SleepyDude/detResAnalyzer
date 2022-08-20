@@ -1,3 +1,4 @@
+from cmath import inf
 import pytest
 import math
 # from tests.config import BASE_DIR
@@ -116,7 +117,7 @@ def test_dataAppend():
     assert math.isclose( dr.y[0], 615.654 + 9493.32 + 17176.3, abs_tol=1e-4 )
     assert math.isclose( dr.y[3], 576.182 + 11508.3 + 17059.4, abs_tol=1e-4 )
     assert math.isclose( dr.overflow_top, 299.061 + 16435.7 + 17625.1, abs_tol=1e-4 )
-    assert dr.nhists == 35e+6
+    assert dr.stat.nhists == 35e+6
     assert len(dr.origin_sequence) == 3
     first_words = [i.split()[0] for i in dr.origin_sequence]
     first_words_right = ['APPEND:', 'APPEND:', 'APPEND:']
@@ -127,16 +128,20 @@ def test_statisticsCalculate():
     TEST_DIR = BASE_DIR.joinpath('tests/test_resources/filenames_and_grouping')
     fname = str( TEST_DIR.joinpath('1 keV 6kk/someName_h1_SpecDetDiag-2.csv') )
     dr.readDataFromCSV(fname)
+    assert dr.stat.delta_max == -inf
+    assert dr.stat.delta_min == inf
+    assert dr.stat.has_calculated == False
     dr.calculateStatistics()
-    assert len(dr.M) == len(dr.D) == len(dr.sigma) == len(dr.y) == len(dr.y2) == 10
-    assert math.isclose(dr.M[0], 1.02609e-4, rel_tol=1e-4)
-    assert math.isclose(dr.M[9], 3.890283333e-5, rel_tol=1e-4)
-    assert math.isclose(dr.D[0], 7.32211e-3, rel_tol=1e-4)
-    assert math.isclose(dr.D[9], 2.80447e-3, rel_tol=1e-4)
-    assert math.isclose(dr.sigma[0], 3.49335e-5, rel_tol=1e-4)
-    assert math.isclose(dr.sigma[9], 2.16197e-5, rel_tol=1e-4)
-    assert math.isclose(dr.delta[0], 3.40453e-1, rel_tol=1e-4)
-    assert math.isclose(dr.delta[9], 5.55736e-1, rel_tol=1e-4)
+    assert len(dr.stat.means) == len(dr.stat.variances) == len(dr.stat.st_devs) == len(dr.y) == len(dr.y2) == 10
+    assert math.isclose(dr.stat.means[0], 1.02609e-4, rel_tol=1e-4)
+    assert math.isclose(dr.stat.means[9], 3.890283333e-5, rel_tol=1e-4)
+    assert math.isclose(dr.stat.variances[0], 7.32211e-3, rel_tol=1e-4)
+    assert math.isclose(dr.stat.variances[9], 2.80447e-3, rel_tol=1e-4)
+    assert math.isclose(dr.stat.st_devs[0], 3.49335e-5, rel_tol=1e-4)
+    assert math.isclose(dr.stat.st_devs[9], 2.16197e-5, rel_tol=1e-4)
+    assert math.isclose(dr.stat.deltas[0], 3.40453e-1, rel_tol=1e-4)
+    assert math.isclose(dr.stat.deltas[9], 5.55736e-1, rel_tol=1e-4)
+    assert dr.stat.has_calculated == True
     
 def test_createChild_1():
     dr = DetRes()
@@ -268,3 +273,121 @@ def test_createChild_2():
     assert math.isclose(drChild3.y2[13], 6, rel_tol=1e-4) # 0.1 * 60 
     assert math.isclose(drChild3.y2[14], 0.0, rel_tol=1e-4) 
     assert math.isclose(drChild3.y2[15], 9.6, rel_tol=1e-4)
+
+def test_createChild_3():
+    test_data = {}
+    test_data["y"] = [1,2,3,4,5,6,7,8,9,8,7,6,5,4,3,2,1] # len = 17
+    test_data["y2"] = [9,8,7,6,5,4,3,2,1,2,3,4,5,6,7,8,9]
+    # bin i                 0     1     2      3      4      5      6      7      8      9     10     11     12     13     14     15     16     17 
+    test_data["bins"] = [1.23, 4.56, 7.89, 10.11, 12.13, 14.15, 16.17, 18.19, 20.21, 22.23, 24.25, 26.27, 28.29, 30.31, 32.33, 34.35, 36.37, 38.39]
+    test_data["overflow_bot"] = 5.67
+    test_data["overflow_top"] = 1.34
+    test_data["nhists"] = 10e+6
+    test_data["origin"] = "MANUALY CREATED from test_data in test_createChild_3"
+    
+    dr = DetRes()
+    dr.setData(**test_data)
+
+    shrink_bin = test_data["bins"][::2]
+    ch = dr.createChild(shrink_bin)
+    assert ch.stat.nhists == 1e+7
+    assert len(ch.y) == 8
+    assert len(ch.BINS[ch.bin_index]) == 9
+    assert math.isclose(ch.overflow_bot, 5.67, abs_tol=1e-14)
+    assert math.isclose(ch.overflow_top, 2.34, abs_tol=1e-14)
+    assert math.isclose(ch.y[0], 3, abs_tol=1e-14)
+    assert math.isclose(ch.y[1], 7, abs_tol=1e-14)
+    assert math.isclose(ch.y[2], 11, abs_tol=1e-14)
+    assert math.isclose(ch.y[3], 15, abs_tol=1e-14)
+    assert math.isclose(ch.y[4], 17, abs_tol=1e-14)
+    assert math.isclose(ch.y[5], 13, abs_tol=1e-14)
+    assert math.isclose(ch.y[6], 9, abs_tol=1e-14)
+    assert math.isclose(ch.y[7], 5, abs_tol=1e-14)
+
+def test_strip():
+    test_data = {}
+    test_data["y"] = [0,0,0,4,5,6,7,8,9,8,7,6,5,0,0,0,0] # len = 17
+    test_data["y2"] = [0,0,0,6,5,4,3,2,1,2,3,4,5,0,0,0,0]
+    # bin i                 0     1     2     3*      4      5      6      7      8      9     10     11     12    13*     14     15     16     17 
+    test_data["bins"] = [1.23, 4.56, 7.89, 10.11, 12.13, 14.15, 16.17, 18.19, 20.21, 22.23, 24.25, 26.27, 28.29, 30.31, 32.33, 34.35, 36.37, 38.39]
+    test_data["overflow_bot"] = 5.67
+    test_data["overflow_top"] = 1.34
+    test_data["nhists"] = 10e+6
+    test_data["origin"] = "MANUALY CREATED from test_data in test_strip()"
+    
+    dr = DetRes()
+    dr.setData(**test_data)
+
+    ch = dr.strip()
+    assert len(ch.BINS[ch.bin_index]) == 11
+    assert len(ch.y) == 10
+    assert math.isclose(ch.BINS[ch.bin_index][0], 10.11, abs_tol=1e-14)
+    assert math.isclose(ch.BINS[ch.bin_index][1], 12.13, abs_tol=1e-14)
+    assert math.isclose(ch.BINS[ch.bin_index][10], 30.31, abs_tol=1e-14)
+
+    assert math.isclose(ch.y[0], dr.y[3], abs_tol=1e-14)
+    assert math.isclose(ch.y[1], dr.y[4], abs_tol=1e-14)
+    assert math.isclose(ch.y[9], dr.y[12], abs_tol=1e-14)
+
+    assert math.isclose(ch.y2[0], dr.y2[3], abs_tol=1e-14)
+    assert math.isclose(ch.y2[1], dr.y2[4], abs_tol=1e-14)
+    assert math.isclose(ch.y2[9], dr.y2[12], abs_tol=1e-14)
+
+
+
+def test_shrinkToDelta():
+    dr = DetRes()
+    TEST_DIR = BASE_DIR.joinpath('tests/test_resources/shrinkTest')
+    fname = str(TEST_DIR.joinpath("100 keV 15kk 8/results-master_h1_VertDetPV-1-Spec.csv"))
+    dr.readDataFromCSV(fname)
+    assert len(dr.BINS[dr.bin_index]) == 501
+    assert len(dr.y) == 500
+    assert math.isclose(dr.BINS[dr.bin_index][3], 1.19916e-12, abs_tol=1e-14)
+    assert math.isclose(dr.y[95], 400.511, abs_tol=1e-14)
+    assert math.isclose(dr.y2[95], 22938, abs_tol=1e-14)
+    
+    dr.calculateStatistics()
+    
+    ch = dr.shrinkToDelta(0.1)
+    assert ch.stat.delta_max <= 0.1 # rel. mistake less than 10% in every bin
+    assert len(ch.BINS[ch.bin_index]) == 386
+    assert len(ch.y) == 385
+    bP = dr.BINS[dr.bin_index]
+    bC = ch.BINS[ch.bin_index]
+    assert math.isclose(bP[0], bC[0], abs_tol=1e-14)
+    assert math.isclose(bP[103], bC[1], abs_tol=1e-14)
+    assert math.isclose(bP[109], bC[2], abs_tol=1e-14)
+    assert math.isclose(bP[113], bC[3], abs_tol=1e-14)
+    assert math.isclose(bP[116], bC[4], abs_tol=1e-14)
+    assert math.isclose(bP[118], bC[5], abs_tol=1e-14)
+    assert math.isclose(bP[120], bC[6], abs_tol=1e-14)
+    assert math.isclose(bP[122], bC[7], abs_tol=1e-14)
+    assert math.isclose(bP[123], bC[8], abs_tol=1e-14)
+    assert math.isclose(bP[124], bC[9], abs_tol=1e-14)
+    assert math.isclose(bP[125], bC[10], abs_tol=1e-14)
+
+    assert math.isclose(ch.y[0], 7364.39648, abs_tol=1e-14)
+    assert math.isclose(ch.y[1], 8701.235, abs_tol=1e-14)
+    assert math.isclose(ch.y[2], 9749.82, abs_tol=1e-14)
+    assert math.isclose(ch.y[3], 10828.34, abs_tol=1e-14)
+    assert math.isclose(ch.y[4], 9140.85, abs_tol=1e-14)
+    assert math.isclose(ch.y[5], 11809.42, abs_tol=1e-14)
+    assert math.isclose(ch.y[6], 14910.89, abs_tol=1e-14)
+    assert math.isclose(ch.y[7], dr.y[122], abs_tol=1e-14)
+    assert math.isclose(ch.y[8], dr.y[123], abs_tol=1e-14)
+    assert math.isclose(ch.y[9], dr.y[124], abs_tol=1e-14)
+    assert math.isclose(ch.y[10], dr.y[125], abs_tol=1e-14)
+
+    assert math.isclose(ch.y2[0], 528899.9598, abs_tol=1e-14)
+    assert math.isclose(ch.y2[1], 625568.4, abs_tol=1e-14)
+    assert math.isclose(ch.y2[2], 720508, abs_tol=1e-14)
+    assert math.isclose(ch.y2[3], 791811, abs_tol=1e-14)
+    assert math.isclose(ch.y2[4], 683847, abs_tol=1e-14)
+    assert math.isclose(ch.y2[5], 856573, abs_tol=1e-14)
+    assert math.isclose(ch.y2[6], 1094181, abs_tol=1e-14)
+    assert math.isclose(ch.y2[7], dr.y2[122], abs_tol=1e-14)
+    assert math.isclose(ch.y2[8], dr.y2[123], abs_tol=1e-14)
+    assert math.isclose(ch.y2[9], dr.y2[124], abs_tol=1e-14)
+    assert math.isclose(ch.y2[10], dr.y2[125], abs_tol=1e-14)
+
+    
