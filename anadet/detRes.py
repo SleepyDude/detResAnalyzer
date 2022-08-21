@@ -297,3 +297,28 @@ class DetRes:
         if not math.isclose(res_bins[-1], self.BINS[self.bin_index][-1], abs_tol=1e-14): # we should save prev edges
             res_bins.append(self.BINS[self.bin_index][right_bin_i])
         return self.createChild(res_bins)
+
+    def printData(self):
+        if not self.stat.has_calculated:
+            self.calculateStatistics()
+        res = "HEADER\n"
+        res += self.name + "\n"
+        # res += str(self) + "\n"
+        res += f"{self.stat.nhists:.2E} histories\n"
+        res += "DATA\n"
+        res += "x mean x mean/width x norm/width x delta\n"
+        x = self.BINS[self.bin_index][0]
+        sum_y = sum(self.y)
+        norms = [i/sum_y for i in self.y]
+        res += f"{x} 0 {x} 0 {x} 0 {x} 0\n"
+        for i in range(len(self.y)):
+            x = self.BINS[self.bin_index][i+1]
+            width = self.BINS[self.bin_index][i+1] - self.BINS[self.bin_index][i]
+            res += f"{x} {self.stat.means[i]} {x} {self.stat.means[i]/width} {x} {norms[i]/width} {x} {self.stat.deltas[i]}\n"
+        return res
+
+    def dumpToFile(self, filename):
+        res = self.printData()
+        with open(filename, 'w') as out:
+            out.write(res)
+        

@@ -4,3 +4,5 @@ env
 .DS_Store
 
 */__pycache__
+
+tests/test_resources/dump_data/res.txt

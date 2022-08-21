@@ -7,7 +7,7 @@ class SourceProps:
         self.energyUnit = energyUnit
     
     def __str__(self):
-        return f"SRC:[{self.energy:.2f} {self.energyUnit}]"
+        return f"SRC[{self.energy:.2f} {self.energyUnit}]"
 
 class GeomProps:
     def __init__(self):
@@ -32,7 +32,7 @@ class DetectorProps:
 
     def __str__(self):
         tagstring = "-".join(self.tags)
-        return f"{self.quantity}|{tagstring}|{self.srcProps}"
+        return f"{self.quantity}_{tagstring}_{self.srcProps}"
 
 class Detector:
     @staticmethod
@@ -56,3 +56,12 @@ class Detector:
             return
         dr.calculateStatistics()
         self.prima_results.append(dr)
+
+    def mergeResults(self):
+        dr = DetRes(self.createName(self.detProps))
+        for res in self.prima_results:
+            dr.appendData(res)
+        self.addit_results.append(dr)
+
+
+    

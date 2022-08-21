@@ -13,11 +13,11 @@ def test_grouping():
     dm = DetectorManager()
     for filename in detector_filenames:
         dm.appendResults(str(filename))
-    assert 'Spec|Diag-1|SRC:[1.00 keV]' in dm.detectors
-    assert len(dm.detectors['Spec|Diag-1|SRC:[1.00 keV]'].wrong_results) == 3
-    assert len(dm.detectors['Spec|Diag-1|SRC:[1.00 keV]'].prima_results) == 0
-    assert len(dm.detectors['Phi|Diag-1|SRC:[1.00 keV]'].prima_results) == 0
-    assert len(dm.detectors['Spec|Diag-5|SRC:[0.50 MeV]'].prima_results) == 0
+    assert 'Spec_Diag-1_SRC[1.00 keV]' in dm.detectors
+    assert len(dm.detectors['Spec_Diag-1_SRC[1.00 keV]'].wrong_results) == 3
+    assert len(dm.detectors['Spec_Diag-1_SRC[1.00 keV]'].prima_results) == 0
+    assert len(dm.detectors['Phi_Diag-1_SRC[1.00 keV]'].prima_results) == 0
+    assert len(dm.detectors['Spec_Diag-5_SRC[0.50 MeV]'].prima_results) == 0
     
-    assert len(dm.detectors['Spec|Diag-2|SRC:[1.00 keV]'].prima_results) == 3
-    assert type(dm.detectors['Spec|Diag-2|SRC:[1.00 keV]'].prima_results[0]) == DetRes
+    assert len(dm.detectors['Spec_Diag-2_SRC[1.00 keV]'].prima_results) == 3
+    assert type(dm.detectors['Spec_Diag-2_SRC[1.00 keV]'].prima_results[0]) == DetRes

@@ -444,3 +444,14 @@ def test_strip_and_shrink():
     assert math.isclose(ch.y2[8], dr.y2[123], abs_tol=1e-14)
     assert math.isclose(ch.y2[9], dr.y2[124], abs_tol=1e-14)
     assert math.isclose(ch.y2[10], dr.y2[125], abs_tol=1e-14)
+
+def test_dump_to_file():
+    dr = DetRes()
+    TEST_DIR = BASE_DIR.joinpath('tests/test_resources/shrinkTest')
+    fname = str(TEST_DIR.joinpath("100 keV 15kk 8/results-master_h1_VertDetPV-1-Spec.csv"))
+    dr.readDataFromCSV(fname)
+    ch = dr.strip().shrinkToDelta(0.1)
+    dump_fname = str(BASE_DIR.joinpath('tests/test_resources/dump_data/res.txt'))
+    ch.dumpToFile(dump_fname)
+    assert Path(dump_fname).is_file()
+    
