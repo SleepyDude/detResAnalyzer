@@ -6,25 +6,28 @@ from anadet.detector import Detector, DetectorProps, SourceProps
 class DetectorManager:
     def __init__(self):
         self.detectors = dict()
-        self.detCategories = []
+        self.state = {}
         self.dataSearcher = DataSearcher()
+        self.meta_info = dict()
+
 
     def appendResults(self, filename):
         """
         filename the name of the file with legit .csv results data from Geant4
         """
         # looking for energy info in full filename
-        srcProps = None
+        src_props = None
         energy_list = self.dataSearcher.lookingForEnergyInfo(filename)
         # preority to the last found energy info (closer to the file by the dir tree)
         if energy_list:
             energy = energy_list[-1]['energy']
-            energyUnit = energy_list[-1]['energy_unit']
-            srcProps = SourceProps(energy, energyUnit)
+            energy_unit = energy_list[-1]['energy_unit']
+            src_props = SourceProps(energy, energy_unit)
         else:
             pass # TODO - try to find info in meta file
-        if not energy:
-            pass # TODO - scenario with unknown source energy
+        if not src_props:
+            print(f"WARNING: can't find energy for filename {filename}")
+            # TODO - scenario with unknown source energy
 
         # looking for num of histories
         nhists = self.dataSearcher.lookingForNhists(filename)
@@ -32,13 +35,14 @@ class DetectorManager:
             pass # TODO - no nhists in filename, maybe search in meta of doesn't matter
         # looking for det params
         det_name, hist_type, det_type, det_quantity, det_num = self.dataSearcher.lookingForDetNameInfo(filename)
-        detProps = DetectorProps(srcProps)
-        detProps.setQuantity(det_quantity)
-        detProps.setTags(det_type, str(det_num))
+        det_props = DetectorProps(src_props)
+        det_props.quantity = det_quantity
+        det_props.num = str(det_num)
+        det_props.tags.extend([det_type]) # tags is an array
 
-        key_name = Detector.createName(detProps)
+        key_name = Detector.createName(det_props)
         if key_name not in self.detectors:
-            self.detectors[key_name] = Detector(detProps)
+            self.detectors[key_name] = Detector(det_props)
         
         # Now we have detector in the self.detectors list
         self.detectors[key_name].appendResult(filename)

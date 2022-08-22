@@ -1,38 +1,30 @@
 from anadet.detRes import DetRes
 from pathlib import Path
+from dataclasses import dataclass, field
+from typing import List
 
+@dataclass
 class SourceProps:
-    def __init__(self, energy: float, energyUnit: str):
-        self.energy = energy
-        self.energyUnit = energyUnit
+    energy: float = None
+    energy_unit: str = ""
+    coordinate: List[float] = field(default_factory=list)
+
+@dataclass
+class GeomProps:
+    distance: float = None
+    angle: float = None
+
+@dataclass
+class DetectorProps:
+    src_props: SourceProps
+    quantity: str = ""
+    num: str = "" # because for 2d matrix detector num could be '3-11' that means that it's 3d column and 11-th row etc.
+    geom_props: GeomProps = None
+    tags: List[str] = field(default_factory=list)
     
     def __str__(self):
-        return f"SRC[{self.energy:.2f} {self.energyUnit}]"
-
-class GeomProps:
-    def __init__(self):
-        self.wallNear = None
-        self.ceilNear = None
-        self.floorNear = None
-
-class DetectorProps:
-    def __init__(self, srcProps: SourceProps):
-        self.srcProps = srcProps
-        self.geomProps = None
-        self.tags = []
-        self.quantity = None
-
-    def setTags(self, *tags):
-        # TODO - prevent dublicate tags
-        self.tags.extend(tags)
-
-    def setQuantity(self, quantity):
-        self.quantity = quantity
-
-
-    def __str__(self):
         tagstring = "-".join(self.tags)
-        return f"{self.quantity}_{tagstring}_{self.srcProps}"
+        return f"{self.quantity}_{tagstring}-{self.num}_SRC[{self.src_props.energy:.2f} {self.src_props.energy_unit}]"
 
 class Detector:
     @staticmethod
