@@ -3,14 +3,15 @@ import re
 from anadet.dataSearcher import DataSearcher
 from anadet.detector import Detector, DetectorProps, SourceProps
 import yaml
+from typing import List
 
 class DetectorManager:
     def __init__(self):
         self.detectors = dict()
         self.state = {}
         self.dataSearcher = DataSearcher()
-        self.meta_info = dict()
-
+        self.meta_data = dict()
+        self.meta_categories = list()
 
     def appendResults(self, filename):
         """
@@ -48,8 +49,20 @@ class DetectorManager:
         # Now we have detector in the self.detectors list
         self.detectors[key_name].appendResult(filename)
 
+
     def readMeta(self, meta_filename):
         loaded_data = None
         with open(meta_filename, 'r') as stream:
             loaded_data = yaml.safe_load(stream)
-        return {}
+
+        self.meta_categories = loaded_data['__Categories'][:]
+        for item_key in loaded_data:
+            tags = []
+            # let's create a keyword for each tag
+            for category in self.meta_categories:
+                m = re.search(category, item_key)
+                if m:
+                    tags.append(m.group(0).strip())
+            if tags:
+                keyword = '-'.join(tags)
+                self.meta_data[keyword] = dict(loaded_data[item_key]) # dict for copy!

@@ -29,21 +29,19 @@ def test_grouping(fm):
 def test_read_meta(fm):
     meta_filenames = fm.getMetaFiles()
     dm = DetectorManager()
-    assert len(dm.meta_info) == 0
+    assert len(dm.meta_categories) == 0
+    assert len(dm.meta_data) == 0
     dm.readMeta(meta_filenames[0])
-    assert len(dm.meta_info) == 4
-    assert 'Vert' in dm.meta_info
-    assert 'XWall' in dm.meta_info
-    assert 'YWall' in dm.meta_info
-    assert 'Diag' in dm.meta_info
-    assert len(dm.meta_info['Vert']) == 8
-    assert len(dm.meta_info['XWall']) == 10
-    assert len(dm.meta_info['YWall']) == 10
-    assert len(dm.meta_info['Diag']) == 10
-
-    assert '1' in dm.meta_info['Vert']
-    assert '8' in dm.meta_info['Vert']
-    assert 'distance' in dm.meta_info['Vert']['8']
+    assert len(dm.meta_categories) == 2
+    assert len(dm.meta_data) == 38
+    assert type(dm.meta_categories) == list
+    assert type(dm.meta_data) == dict
+    assert 'Vert-1' in dm.meta_data
+    assert 'Vert-8' in dm.meta_data
+    assert 'XWall-1' in dm.meta_data
+    assert 'XWall-10' in dm.meta_data
+    assert  'distance' in dm.meta_data['Vert-1']
+    assert  'angle' in dm.meta_data['Diag-5']
 
 
 

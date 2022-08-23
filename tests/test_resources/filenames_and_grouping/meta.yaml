@@ -1,129 +1,122 @@
 # primary categories
 __Categories:
-  - Vert: '(Vert)'
-  - XWall: '(XWall)'
-  - YWall: '(YWall)'
-  - Diag: '(Diag)'
-  - Num: '[^h](\d+)'
+  - '(Vert|XWall|YWall|Diag)'
+  - '[^h](\d+)'
 
-Vert:
-  1:
-    - distance: 100
-    - angle: 0.052786405
-  2:
-    - distance: 200
-    - angle: 0.01492875
-  3:
-    - distance: 300
-    - angle: 0.006803038
-  4:
-    - distance: 400
-    - angle: 0.003861062
-  5:
-    - distance: 500
-    - angle: 0.002481405
-  6:
-    - distance: 600
-    - angle: 0.001727121
-  7:
-    - distance: 700
-    - angle: 0.00127065
-  8:
-    - distance: 800
-    - angle: 0.000973711
+Vert 1: 
+  distance: 100
+  angle: 0.052786405
+Vert 2:
+  distance: 200
+  angle: 0.01492875
+Vert 3:
+  distance: 300
+  angle: 0.006803038
+Vert 4:
+  distance: 400
+  angle: 0.003861062
+Vert 5:
+  distance: 500
+  angle: 0.002481405
+Vert 6:
+  distance: 600
+  angle: 0.001727121
+Vert 7:
+  distance: 700
+  angle: 0.00127065
+Vert 8:
+  distance: 800
+  angle: 0.000973711
   
-XWall:
-  1:
-    - distance: 490
-    - angle: 0.002582929
-  2:
-    - distance: 980
-    - angle: 0.000649503
-  3:
-    - distance: 1470
-    - angle: 0.000288981
-  4:
-    - distance: 1960
-    - angle: 0.000162613
-  5:
-    - distance: 2450
-    - angle: 0.000104091
-  6:
-    - distance: 2940
-    - angle: 7.22922E-05
-  7:
-    - distance: 3430
-    - angle: 5.31157E-05
-  8:
-    - distance: 3920
-    - angle: 4.06682E-05
-  9:
-    - distance: 4410
-    - angle: 3.21337E-05
-  10:
-    - distance: 4900
-    - angle: 2.60288E-05
+XWall 1:
+  distance: 490
+  angle: 0.002582929
+XWall 2:
+  distance: 980
+  angle: 0.000649503
+XWall 3:
+  distance: 1470
+  angle: 0.000288981
+XWall 4:
+  distance: 1960
+  angle: 0.000162613
+XWall 5:
+  distance: 2450
+  angle: 0.000104091
+XWall 6:
+  distance: 2940
+  angle: 7.22922E-05
+XWall 7:
+  distance: 3430
+  angle: 5.31157E-05
+XWall 8:
+  distance: 3920
+  angle: 4.06682E-05
+XWall 9:
+  distance: 4410
+  angle: 3.21337E-05
+XWall 10:
+  distance: 4900
+  angle: 2.60288E-05
 
-YWall:
-  1:
-    - distance: 990
-    - angle: 0.000636473
-  2:
-    - distance: 1980
-    - angle: 0.000159346
-  3:
-    - distance: 2970
-    - angle: 7.08394E-05
-  4:
-    - distance: 3960
-    - angle: 3.98509E-05
-  5:
-    - distance: 4950
-    - angle: 2.55056E-05
-  6:
-    - distance: 5940
-    - angle: 1.77127E-05
-  7:
-    - distance: 6930
-    - angle: 1.30136E-05
-  8:
-    - distance: 7920
-    - angle: 9.96361E-06
-  9:
-    - distance: 8910
-    - angle: 7.87253E-06
-  10:
-    - distance: 9900
-    - angle: 6.37678E-06
+YWall 1:
+  distance: 990
+  angle: 0.000636473
+YWall 2:
+  distance: 1980
+  angle: 0.000159346
+YWall 3:
+  distance: 2970
+  angle: 7.08394E-05
+YWall 4:
+  distance: 3960
+  angle: 3.98509E-05
+YWall 5:
+  distance: 4950
+  angle: 2.55056E-05
+YWall 6:
+  distance: 5940
+  angle: 1.77127E-05
+YWall 7:
+  distance: 6930
+  angle: 1.30136E-05
+YWall 8:
+  distance: 7920
+  angle: 9.96361E-06
+YWall 9:
+  distance: 8910
+  angle: 7.87253E-06
+YWall 10:
+  distance: 9900
+  angle: 6.37678E-06
 
-Diag:
-  1:
-    - distance: 1107.519752
-    - angle: 0.000508761
-  2:
-    - distance: 2215.039503
-    - angle: 0.000127336
-  3:
-    - distance: 3322.559255
-    - angle: 5.66058E-05
-  4:
-    - distance: 4430.079006
-    - angle: 3.18431E-05
-  5:
-    - distance: 5537.598758
-    - angle: 2.03803E-05
-  6:
-    - distance: 6645.118509
-    - angle: 1.41532E-05
-  7:
-    - distance: 7752.638261
-    - angle: 1.03984E-05
-  8:
-    - distance: 8860.158012
-    - angle: 7.96135E-06
-  9:
-    - distance: 9967.677764
-    - angle: 6.29048E-06
-  10:
-    - distance: 11075.19752
-    - angle: 5.09531E-06
+Diag 1:
+  distance: 1107.519752
+  angle: 0.000508761
+Diag 2:
+  distance: 2215.039503
+  angle: 0.000127336
+Diag 3:
+  distance: 3322.559255
+  angle: 5.66058E-05
+Diag 4:
+  distance: 4430.079006
+  angle: 3.18431E-05
+Diag 5:
+  distance: 5537.598758
+  angle: 2.03803E-05
+Diag 6:
+  distance: 6645.118509
+  angle: 1.41532E-05
+Diag 7:
+  distance: 7752.638261
+  angle: 1.03984E-05
+Diag 8:
+  distance: 8860.158012
+  angle: 7.96135E-06
+Diag 9:
+  distance: 9967.677764
+  angle: 6.29048E-06
+Diag 10:
+  distance: 11075.19752
+  angle: 5.09531E-06
