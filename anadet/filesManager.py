@@ -16,3 +16,6 @@ class FilesManager:
 
     def getDetFiles(self):
         return self.detectorFiles
+
+    def getMetaFiles(self):
+        return self.metaFiles

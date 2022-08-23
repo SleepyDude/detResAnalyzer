@@ -55,7 +55,7 @@ class DataSearcher:
             if item in detName:
                 detQuantity = item # TODO - should react on the case if there are more than one Quantity found
         m = re.search(r'(\d+)', detName) # TODO - case with more than one numbers in the name
-        if m: # if number found in the name then it belongs to detector numeration
+        if m: # if any number found in the name then it belongs to detector numeration
             detNum = int(m.group(0))
         for item in self.DET_CLASSES:
             if item in detName:

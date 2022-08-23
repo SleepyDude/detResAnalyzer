@@ -2,6 +2,7 @@ import re
 
 from anadet.dataSearcher import DataSearcher
 from anadet.detector import Detector, DetectorProps, SourceProps
+import yaml
 
 class DetectorManager:
     def __init__(self):
@@ -47,4 +48,8 @@ class DetectorManager:
         # Now we have detector in the self.detectors list
         self.detectors[key_name].appendResult(filename)
 
-
+    def readMeta(self, meta_filename):
+        loaded_data = None
+        with open(meta_filename, 'r') as stream:
+            loaded_data = yaml.safe_load(stream)
+        return {}
