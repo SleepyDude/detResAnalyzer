@@ -1,13 +1,13 @@
 import re
 
 from anadet.dataSearcher import DataSearcher
-from anadet.detector import Detector, DetectorProps, SourceProps
+from anadet.detector import Detector, DetectorProps, SourceProps, GeomProps
 import yaml
-from typing import List
+from typing import List, Dict
 
 class DetectorManager:
     def __init__(self):
-        self.detectors = dict()
+        self.detectors : Dict[str, Detector] = dict()
         self.state = {}
         self.dataSearcher = DataSearcher()
         self.meta_data = dict()
@@ -41,6 +41,15 @@ class DetectorManager:
         det_props.quantity = det_quantity
         det_props.num = str(det_num)
         det_props.tags.extend([det_type]) # tags is an array
+        
+        # TODO change this way to get params for detectors
+        gp = None
+        if self.meta_data:
+            keyword_for_meta = det_type + '-' + str(det_num)
+            if keyword_for_meta in self.meta_data:
+                gp = GeomProps(**self.meta_data[keyword_for_meta])
+
+        det_props.geom_props = gp
 
         key_name = Detector.createName(det_props)
         if key_name not in self.detectors:

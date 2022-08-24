@@ -4,6 +4,7 @@ from anadet.filesManager import FilesManager
 from pprint import pprint as pp
 from tests.config import BASE_DIR
 from pytest import fixture
+import math
 
 @fixture
 def fm():
@@ -43,6 +44,15 @@ def test_read_meta(fm):
     assert  'distance' in dm.meta_data['Vert-1']
     assert  'angle' in dm.meta_data['Diag-5']
 
+def test_append_result_with_meta(fm):
+    detector_filenames = fm.getDetFiles()
+    meta_filenames = fm.getMetaFiles()
+    dm = DetectorManager()
+    dm.readMeta(meta_filenames[0]) # important part in this test
+    for filename in detector_filenames:
+        dm.appendResults(str(filename))
 
-
-    
+    assert math.isclose(dm.detectors['Spec_Diag-1_SRC[1.00 keV]'].detProps.geom_props.angle, 0.000508761, abs_tol=1e-14)
+    assert math.isclose(dm.detectors['Spec_Diag-1_SRC[1.00 keV]'].detProps.geom_props.distance, 1107.519752, abs_tol=1e-14)
+    assert math.isclose(dm.detectors['Phi_Diag-1_SRC[1.00 keV]'].detProps.geom_props.angle, 0.000508761, abs_tol=1e-14)
+    assert math.isclose(dm.detectors['Phi_Diag-1_SRC[1.00 keV]'].detProps.geom_props.distance, 1107.519752, abs_tol=1e-14)
