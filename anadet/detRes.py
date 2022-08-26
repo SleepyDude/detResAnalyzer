@@ -97,9 +97,10 @@ class DetRes:
 
     def __str__(self):
         if len(self.origin_sequence):
-            return f"<DetRes {self.name} origin={self.origin_sequence}>"
+            seq_string = '\n'.join(self.origin_sequence)
+            return f"<DetRes({self.name})origin={seq_string}>"
         else:
-            return f"<DetRes {self.name} EMPTY DATA>"
+            return f"<DetRes({self.name})EMPTY DATA>"
 
     def readDataFromCSV(self, filename):
         START_DATA_IDX = 7
@@ -301,20 +302,22 @@ class DetRes:
     def printData(self):
         if not self.stat.has_calculated:
             self.calculateStatistics()
-        res = "HEADER\n"
-        res += self.name + "\n"
-        # res += str(self) + "\n"
-        res += f"{self.stat.nhists:.2E} histories\n"
-        res += "DATA\n"
-        res += "x mean x mean/width x norm/width x delta\n"
+        res = "DETRES_HEADER\n"
+        res += f"Name: {self.name}" + "\n"
+        res += str(self) + "\n"
+        res += f"Histories: {self.stat.nhists:.2E}" + "\n"
+        res += f"Overflow bot: {self.overflow_bot}" + "\n"
+        res += f"Overflow top: {self.overflow_top}" + "\n"
+        res += "DETRES_DATA\n"
+        res += "x y y2 mean mean/width norm/width delta\n"
         x = self.BINS[self.bin_index][0]
         sum_y = sum(self.y)
         norms = [i/sum_y for i in self.y]
-        res += f"{x} 0 {x} 0 {x} 0 {x} 0\n"
+        res += f"{x} 0 0 0 0 0 0\n"
         for i in range(len(self.y)):
             x = self.BINS[self.bin_index][i+1]
             width = self.BINS[self.bin_index][i+1] - self.BINS[self.bin_index][i]
-            res += f"{x} {self.stat.means[i]} {x} {self.stat.means[i]/width} {x} {norms[i]/width} {x} {self.stat.deltas[i]}\n"
+            res += f"{x} {self.y[i]} {self.y2[i]} {self.stat.means[i]} {self.stat.means[i]/width} {norms[i]/width} {self.stat.deltas[i]}\n"
         return res
 
     def dumpToFile(self, filename):

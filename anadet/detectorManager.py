@@ -13,7 +13,16 @@ class DetectorManager:
         self.meta_data = dict()
         self.meta_categories = list()
 
-    def appendResults(self, filename):
+    def appendResults(self, filename: str):
+        if filename.endswith('.csv'):
+            self.appendResultsCSV(filename)
+        elif filename.endswith('.det.txt'):
+            det = Detector()
+            det.createFromFile(filename)
+            name = det.createName(det.detProps)
+            self.detectors[name] = det
+
+    def appendResultsCSV(self, filename):
         """
         filename the name of the file with legit .csv results data from Geant4
         """
@@ -57,7 +66,6 @@ class DetectorManager:
         
         # Now we have detector in the self.detectors list
         self.detectors[key_name].appendResult(filename)
-
 
     def readMeta(self, meta_filename):
         loaded_data = None

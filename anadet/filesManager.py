@@ -13,6 +13,8 @@ class FilesManager:
                 self.detectorFiles.append(file)
             elif file.name.endswith('meta.yaml'):
                 self.metaFiles.append(file)
+            elif file.name.endswith('.det.txt'):
+                self.detectorFiles.append(file)
 
     def getDetFiles(self):
         return self.detectorFiles
