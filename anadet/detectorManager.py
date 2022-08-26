@@ -49,7 +49,7 @@ class DetectorManager:
         det_props = DetectorProps(src_props)
         det_props.quantity = det_quantity
         det_props.num = str(det_num)
-        det_props.tags.extend([det_type]) # tags is an array
+        det_props.setTag(det_type) # tags is an array
         
         # TODO change this way to get params for detectors
         gp = None

@@ -24,8 +24,8 @@ APPEND: <DetRes(Phi_Diag-1_SRC[1.00 MeV])origin=READ: C:/Projects/room/build-src
 APPEND: <DetRes(Phi_Diag-1_SRC[1.00 MeV])origin=READ: C:/Projects/room/build-src-room-Desktop_Qt_5_15_0_MSVC2019_64bit-Release/res-from-Plesetsk/1 MeV 5kk 8/results-master_h1_DiagDetPV-1-Phi.csv>
 APPEND: <DetRes(Phi_Diag-1_SRC[1.00 MeV])origin=READ: C:/Projects/room/build-src-room-Desktop_Qt_5_15_0_MSVC2019_64bit-Release/res-from-Plesetsk/1 MeV 5kk 9/results-master_h1_DiagDetPV-1-Phi.csv>>
 Histories: 5.50E+07
-Overflow bot: 3.0
-Overflow top: 5.0
+Overflow_bot: 3.0
+Overflow_top: 5.0
 DETRES_DATA
 x y y2 mean mean/width norm/width delta
 0.0 0 0 0 0 0 0
@@ -388,4 +388,4 @@ x y y2 mean mean/width norm/width delta
 357.0 267.0 267.0 4.854545454545454e-06 4.854545454545454e-06 0.001057463434340234 0.06119885814570491
 358.0 263.0 263.0 4.781818181818182e-06 4.781818181818182e-06 0.0010416212855111667 0.06166249472844227
 359.0 229.0 229.0 4.163636363636363e-06 4.163636363636363e-06 0.0009069630204640958 0.06608172307569099
-360.0 261.0 261.0 4.745454545454545e-06 4.745454545454545e-06 0.001033700211096633 0.06189829975342377
+360.0 261.0 261.5 4.745454545454545e-06 4.745454545454545e-06 0.001033700211096633 0.06189829975342377

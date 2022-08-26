@@ -19,12 +19,19 @@ class DetectorProps:
     src_props: SourceProps = SourceProps()
     quantity: str = ""
     num: str = "" # because for 2d matrix detector num could be '3-11' that means that it's 3d column and 11-th row etc.
-    geom_props: GeomProps = None
-    tags: List[str] = field(default_factory=list)
+    geom_props: GeomProps = GeomProps()
+    __tags: List[str] = field(default_factory=list)
     
     def __str__(self):
-        tagstring = "-".join(self.tags)
+        tagstring = "-".join(self.__tags)
         return f"{self.quantity}_{tagstring}-{self.num}_SRC[{self.src_props.energy:.2f} {self.src_props.energy_unit}]"
+
+    def setTag(self, tag):
+        if tag not in self.__tags:
+            self.__tags.append(tag)
+
+    def getTags(self):
+        return self.__tags
 
 class Detector:
     @staticmethod
@@ -54,7 +61,59 @@ class Detector:
         """
             Create detector from file
         """
-        pass
+        with open(filename, 'r') as f:
+            f.readline() # skip 1st line
+            self.detProps.quantity = f.readline().split()[1]
+            self.detProps.num = f.readline().split()[1] # remember that num is a string
+            for tag in f.readline().split()[1:]:
+                self.detProps.setTag(tag)
+            f.readline() # skip geometry line
+            self.detProps.geom_props.distance = float( f.readline().split()[1] )
+            self.detProps.geom_props.angle    = float( f.readline().split()[1] )
+            f.readline() # skip source line
+            energy_info = f.readline().split()
+            self.detProps.src_props.energy = float( energy_info[1] )
+            self.detProps.src_props.energy_unit = energy_info[2]
+            for _ in range(5): # skip 5 lines
+                f.readline()
+            # detRes info is coming
+            name = ' '.join(f.readline().split()[1:])
+            assert name == self.createName(self.detProps), "check for name in file and resulting name are the same"
+            dr = DetRes(name)
+            words = f.readline().split()
+            while(words[0] != 'Histories:'): # skip the origin sequence, remain it in file for now
+                words = f.readline().split()
+            dr_nhists = int( float(words[1]) )
+            dr_ovf_bot = float( f.readline().split()[1] )
+            dr_ovf_top = float( f.readline().split()[1] )
+            f.readline() # skip data header
+            table_len = len(f.readline().split())
+            line_len = table_len
+            dr_bins = []
+            dr_y = []
+            dr_y2 = []
+            dr_bins.append(float( f.readline().split()[0] )) # line contain the 1st bin and the other data are zeroes
+            words = f.readline().split()
+            while(line_len == table_len):
+                words = [float(word) for word in words]
+                dr_bins.append(words[0])
+                dr_y.append(words[1])
+                dr_y2.append(words[2])
+
+                words = f.readline().split()
+                line_len = len(words)
+            # the file reading is finished
+            dr.setData(
+                nhists=dr_nhists,
+                overflow_bot=dr_ovf_bot,
+                overflow_top=dr_ovf_top,
+                bins=dr_bins,
+                y=dr_y,
+                y2=dr_y2,
+                origin=f"READ: {filename}"
+            )
+            dr.calculateStatistics()
+            self.prima_results.append(dr)
 
     def mergeResults(self):
         dr = DetRes(self.createName(self.detProps))
@@ -73,9 +132,9 @@ class Detector:
         res += " SOURCE:\n"
         res += f"Energy: {self.detProps.src_props.energy} {self.detProps.src_props.energy_unit}" + "\n"
         res += " RESULTS:\n"
-        res += f"Num of prima_results: {len(self.prima_results)}" + "\n"
-        res += f"Num of wrong_results: {len(self.wrong_results)}" + "\n"
-        res += f"Num of addit_results: {len(self.addit_results)}" + "\n"
+        res += f"Num_of_prima_results: {len(self.prima_results)}" + "\n"
+        res += f"Num_of_wrong_results: {len(self.wrong_results)}" + "\n"
+        res += f"Num_of_addit_results: {len(self.addit_results)}" + "\n"
         res += dr.printData()
         with open(filename, 'w') as out:
             out.write(res)

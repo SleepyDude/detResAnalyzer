@@ -18,7 +18,7 @@ def test_appendResult():
     assert len(d.wrong_results) == 1
     assert Path(d.wrong_results[0]).match('1 keV 6kk/someName_h1_SpecDetDiag-1.csv')
 
-def test_append_result_from_txt():
+def test_create_detector_from_txt():
     dirname = BASE_DIR.joinpath('tests/test_resources/filenames_and_grouping')
     fname = 'merged/Phi_Diag-1_SRC[1.00 MeV].det.txt'
     fname = dirname.joinpath(fname)
@@ -31,10 +31,10 @@ def test_append_result_from_txt():
 
     dp = d.detProps
 
-    assert dp.num == 1
+    assert dp.num == '1'
     assert dp.quantity == 'Phi'
-    assert len(dp.tags) == 1
-    assert dp.tags[0] == 'Diag'
+    assert len(dp.getTags()) == 1
+    assert dp.getTags()[0] == 'Diag'
     assert math.isclose(dp.geom_props.angle, 0.000508761, abs_tol=1e-14)
     assert math.isclose(dp.geom_props.distance, 1107.519752, abs_tol=1e-14)
     assert math.isclose(dp.src_props.energy, 1.0, abs_tol=1e-14)
@@ -53,5 +53,7 @@ def test_append_result_from_txt():
     assert len(det_res.y) == len(det_res.y2) == 360
     assert math.isclose(det_res.y[0], 273, abs_tol=1e-14)
     assert math.isclose(det_res.y2[207], 11022.0, abs_tol=1e-14)
+    assert math.isclose(det_res.y[359], 261, abs_tol=1e-14)
+    assert math.isclose(det_res.y2[359], 261.5, abs_tol=1e-14)
     assert len(det_res.origin_sequence) == 1
-    assert len(det_res.origin_sequence[0].split()[0]) == 'READ:'
+    assert det_res.origin_sequence[0].split()[0] == 'READ:'

@@ -306,8 +306,8 @@ class DetRes:
         res += f"Name: {self.name}" + "\n"
         res += str(self) + "\n"
         res += f"Histories: {self.stat.nhists:.2E}" + "\n"
-        res += f"Overflow bot: {self.overflow_bot}" + "\n"
-        res += f"Overflow top: {self.overflow_top}" + "\n"
+        res += f"Overflow_bot: {self.overflow_bot}" + "\n"
+        res += f"Overflow_top: {self.overflow_top}" + "\n"
         res += "DETRES_DATA\n"
         res += "x y y2 mean mean/width norm/width delta\n"
         x = self.BINS[self.bin_index][0]
