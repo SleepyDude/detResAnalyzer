@@ -3,10 +3,10 @@ from anadet.detectorManager import DetectorManager
 from anadet.filesManager import FilesManager
 from pprint import pprint as pp
 from tests.config import BASE_DIR
-from pytest import fixture
+import pytest
 import math
 
-@fixture
+@pytest.fixture
 def fm():
     test_directory = str(BASE_DIR.joinpath('tests/test_resources/filenames_and_grouping'))
     fm = FilesManager()
@@ -56,3 +56,6 @@ def test_append_result_with_meta(fm):
     assert math.isclose(dm.detectors['Spec_Diag-1_SRC[1.00 keV]'].detProps.geom_props.distance, 1107.519752, abs_tol=1e-14)
     assert math.isclose(dm.detectors['Phi_Diag-1_SRC[1.00 keV]'].detProps.geom_props.angle, 0.000508761, abs_tol=1e-14)
     assert math.isclose(dm.detectors['Phi_Diag-1_SRC[1.00 keV]'].detProps.geom_props.distance, 1107.519752, abs_tol=1e-14)
+
+if __name__ == "__main__":
+    pytest.main(["tests/test_detectorManager.py", "-s"])

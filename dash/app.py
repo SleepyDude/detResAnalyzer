@@ -55,13 +55,13 @@ fig.add_trace(go.Scatter(
 
 
 # *** READ REAL DATA ***
-# fm = FilesManager()
-# data_dir = "C:/Projects/room/build-src-room-Desktop_Qt_5_15_0_MSVC2019_64bit-Release"
-# fm.readDirectory(data_dir)
-# detector_filenames = fm.getDetFiles()
-# dm = DetectorManager()
-# for filename in detector_filenames:
-#     dm.appendResults(str(filename))
+fm = FilesManager()
+data_dir = "C:/Projects/room/results"
+fm.readDirectory(data_dir)
+detector_filenames = fm.getDetFiles()
+dm = DetectorManager()
+for filename in detector_filenames:
+    dm.appendResults(str(filename))
 
 # def addPlot(name):
 #     dm.detectors[name].mergeResults()
@@ -78,6 +78,9 @@ fig.add_trace(go.Scatter(
 #     ))
 
 if __name__ == "__main__":
+    print(len(dm.detectors))
+    for det in dm.detectors:
+        print(det)
     # addPlot('Spec_Vert-1_SRC[100.00 keV]')
     # addPlot('Spec_Vert-2_SRC[100.00 keV]')
     # addPlot('Spec_Vert-3_SRC[100.00 keV]')

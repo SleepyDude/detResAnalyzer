@@ -7,7 +7,6 @@ from typing import List
 class SourceProps:
     energy: float = 0.0
     energy_unit: str = ""
-    coordinate: List[float] = field(default_factory=list)
 
 @dataclass
 class GeomProps:
@@ -16,17 +15,25 @@ class GeomProps:
 
 @dataclass
 class DetectorProps:
-    src_props: SourceProps = SourceProps()
+    src_props: SourceProps = None
     quantity: str = ""
     num: str = "" # because for 2d matrix detector num could be '3-11' that means that it's 3d column and 11-th row etc.
-    geom_props: GeomProps = GeomProps()
-    __tags: List[str] = field(default_factory=list)
+    geom_props: GeomProps = None
+    __tags: List[str] = None
+
+    def __post_init__(self):
+        if self.src_props is None:
+            self.src_props = SourceProps()
+        self.__tags = list()
+        self.geom_props = GeomProps()
     
     def __str__(self):
         tagstring = "-".join(self.__tags)
         return f"{self.quantity}_{tagstring}-{self.num}_SRC[{self.src_props.energy:.2f} {self.src_props.energy_unit}]"
 
     def setTag(self, tag):
+        # if self.__tags == None:
+        #     self.__tags = list()
         if tag not in self.__tags:
             self.__tags.append(tag)
 
@@ -38,8 +45,11 @@ class Detector:
     def createName(detprops: DetectorProps):
         return f"{detprops}"
 
-    def __init__(self, detProps=DetectorProps()):
-        self.detProps : DetectorProps = detProps
+    def __init__(self, det_props: DetectorProps = None):
+        if det_props is None:
+            self.detProps : DetectorProps = DetectorProps()
+        else:
+            self.detProps : DetectorProps = det_props
         self.prima_results : List[DetRes] = [] # Contains only primary results, which were read from files on disk
         self.wrong_results = []
         self.addit_results = [] # Contains merge versions of results, different bins versions and other, links to primary
@@ -78,6 +88,8 @@ class Detector:
                 f.readline()
             # detRes info is coming
             name = ' '.join(f.readline().split()[1:])
+            if name != self.createName(self.detProps):
+                print(f"Name problems {name} vs {self.createName(self.detProps)}")
             assert name == self.createName(self.detProps), "check for name in file and resulting name are the same"
             dr = DetRes(name)
             words = f.readline().split()
@@ -125,7 +137,7 @@ class Detector:
         res = "DETECTOR_HEADER\n"
         res += f"Quantity: {self.detProps.quantity}" + "\n"
         res += f"Det_num: {self.detProps.num}" + "\n"
-        res += f"Tags: {' '.join(self.detProps.tags)}" + "\n"
+        res += f"Tags: {' '.join(self.detProps.getTags())}" + "\n"
         res += " GEOMETRY\n"
         res += f"Distance: {self.detProps.geom_props.distance}" + "\n"
         res += f"Angle: {self.detProps.geom_props.angle}" + "\n"
