@@ -39,10 +39,10 @@ def test_create_detector_from_txt():
     assert math.isclose(dp.geom_props.distance, 1107.519752, abs_tol=1e-14)
     assert math.isclose(dp.src_props.energy, 1.0, abs_tol=1e-14)
     assert dp.src_props.energy_unit == 'MeV'
-    assert d.createName(dp) == 'Phi_Diag-1_SRC[1.00 MeV]'
+    assert d.createName(dp) == 'Phi_Diag_1_SRC[1.00 MeV]'
     
     det_res = d.prima_results[0]
-    assert det_res.name == 'Phi_Diag-1_SRC[1.00 MeV]'
+    assert det_res.name == 'Phi_Diag_1_SRC[1.00 MeV]'
     bins = det_res.BINS[det_res.bin_index]
     assert len(bins) == 361
     assert math.isclose(bins[0], 0, abs_tol=1e-14)

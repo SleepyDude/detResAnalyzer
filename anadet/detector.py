@@ -28,25 +28,34 @@ class DetectorProps:
         self.geom_props = GeomProps()
     
     def __str__(self):
-        return self.getKeyname()
+        return self.getKeyname({})
         # tagstring = "-".join(self.__tags)
         # return f"{self.quantity}_{tagstring}-{self.num}_SRC[{self.src_props.energy:.2f} {self.src_props.energy_unit}]"
 
-    def getKeyname(self, *blocked):
+    def getKeyname(self, blocked : set):
         """
             *blocked contain blocked parts to form a keyword
             possible words:
                 - quantity
                 - energy
-                - tags
                 - num
+            **tags contain blocked tags
+                tags = ['tag1', 'tag2', 'tag3']
         """
         # parts for keyname:
-        quantity = self.quantity + '_' if 'quantity' not in blocked else ""
-        tagstring = "-".join(self.__tags) + '-' if 'tags' not in blocked else ""
+        parts = []
+        quantity = self.quantity if 'quantity' not in blocked else ""
+        parts.append(quantity)
+        # bl_tags = blocked_tags['tags'] if 'tags' in blocked_tags else []
+        tagstring = "-".join([tag for tag in self.__tags if tag not in blocked])
+        parts.append(tagstring)
         num = self.num if 'num' not in blocked else ""
-        source = f"_SRC[{self.src_props.energy:.2f} {self.src_props.energy_unit}]" if 'energy' not in blocked else ""
-        return f"{quantity}{tagstring}{num}{source}"
+        parts.append(num)
+        source = f"SRC[{self.src_props.energy:.2f} {self.src_props.energy_unit}]" if 'energy' not in blocked else ""
+        parts.append(source)
+        # filter parts
+        parts = [i for i in parts if i]
+        return "_".join(parts)
 
         
 

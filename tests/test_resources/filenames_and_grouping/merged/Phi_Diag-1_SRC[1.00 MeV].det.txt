@@ -12,7 +12,7 @@ Num of prima_results: 10
 Num of wrong_results: 0
 Num of addit_results: 1
 DETRES_HEADER
-Name: Phi_Diag-1_SRC[1.00 MeV]
+Name: Phi_Diag_1_SRC[1.00 MeV]
 <DetRes(Phi_Diag-1_SRC[1.00 MeV])origin=APPEND: <DetRes(Phi_Diag-1_SRC[1.00 MeV])origin=READ: C:/Projects/room/build-src-room-Desktop_Qt_5_15_0_MSVC2019_64bit-Release/res-from-Plesetsk/1 MeV 10kk/results-master_h1_DiagDetPV-1-Phi.csv>
 APPEND: <DetRes(Phi_Diag-1_SRC[1.00 MeV])origin=READ: C:/Projects/room/build-src-room-Desktop_Qt_5_15_0_MSVC2019_64bit-Release/res-from-Plesetsk/1 MeV 5kk/results-master_h1_DiagDetPV-1-Phi.csv>
 APPEND: <DetRes(Phi_Diag-1_SRC[1.00 MeV])origin=READ: C:/Projects/room/build-src-room-Desktop_Qt_5_15_0_MSVC2019_64bit-Release/res-from-Plesetsk/1 MeV 5kk 2/results-master_h1_DiagDetPV-1-Phi.csv>

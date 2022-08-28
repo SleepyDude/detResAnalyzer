@@ -4,6 +4,7 @@ from anadet.dataSearcher import DataSearcher
 from anadet.detector import Detector, DetectorProps, SourceProps, GeomProps
 import yaml
 from typing import List, Dict
+from math import isclose as icl
 
 class DetectorManager:
     def __init__(self):
@@ -84,6 +85,41 @@ class DetectorManager:
                 keyword = '-'.join(tags)
                 self.meta_data[keyword] = dict(loaded_data[item_key]) # dict for copy!
 
-    def filterEnergy(self, detectors : Dict[str, Detector], energy : float, energy_unit : str) -> Dict[str, Detector]:
-        ...
+    def filterEnergy(self, detectors : Dict[str, tuple[set, Detector]], energy : float, energy_unit : str) -> Dict[str, tuple[set, Detector]]:
+        res = dict()
+        for _, det_pair in detectors.items():
+            blocked_set, value = det_pair
+            if icl(value.detProps.src_props.energy, energy, abs_tol=1e-14) and value.detProps.src_props.energy_unit == energy_unit:
+                newset = blocked_set.copy()
+                newset.add('energy')
+                newkey = value.detProps.getKeyname(newset)
+                res[newkey] = (newset, value)
+        return res
         
+    def filterQuantity(self, detectors : Dict[str, tuple[set, Detector]], quantity : str) -> Dict[str, tuple[set, Detector]]:
+        res = dict()
+        for _, det_pair in detectors.items():
+            blocked_set, value = det_pair
+            if value.detProps.quantity == quantity:
+                newset = blocked_set.copy()
+                newset.add('quantity')
+                newkey = value.detProps.getKeyname(newset)
+                res[newkey] = (newset, value)
+        return res
+
+    def filterTag(self, detectors : Dict[str, tuple[set, Detector]], tag : str) -> Dict[str, tuple[set, Detector]]:
+        res = dict()
+        for _, det_pair in detectors.items():
+            blocked_set, value = det_pair
+            if tag in value.detProps.getTags():
+                newset = blocked_set.copy()
+                newset.add(tag)
+                newkey = value.detProps.getKeyname(newset)
+                res[newkey] = (newset, value)
+        return res
+
+    def prep_dets_for_filtering(self, detectors : Dict[str, Detector]) -> Dict[str, tuple[set, Detector]]:
+        res = dict()
+        for key, value in detectors.items():
+            res[key] = (set(), value)
+        return res
