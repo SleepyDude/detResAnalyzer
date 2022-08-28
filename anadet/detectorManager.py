@@ -83,3 +83,7 @@ class DetectorManager:
             if tags:
                 keyword = '-'.join(tags)
                 self.meta_data[keyword] = dict(loaded_data[item_key]) # dict for copy!
+
+    def filterEnergy(self, detectors : Dict[str, Detector], energy : float, energy_unit : str) -> Dict[str, Detector]:
+        ...
+        

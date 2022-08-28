@@ -28,8 +28,28 @@ class DetectorProps:
         self.geom_props = GeomProps()
     
     def __str__(self):
-        tagstring = "-".join(self.__tags)
-        return f"{self.quantity}_{tagstring}-{self.num}_SRC[{self.src_props.energy:.2f} {self.src_props.energy_unit}]"
+        return self.getKeyname()
+        # tagstring = "-".join(self.__tags)
+        # return f"{self.quantity}_{tagstring}-{self.num}_SRC[{self.src_props.energy:.2f} {self.src_props.energy_unit}]"
+
+    def getKeyname(self, *blocked):
+        """
+            *blocked contain blocked parts to form a keyword
+            possible words:
+                - quantity
+                - energy
+                - tags
+                - num
+        """
+        # parts for keyname:
+        quantity = self.quantity + '_' if 'quantity' not in blocked else ""
+        tagstring = "-".join(self.__tags) + '-' if 'tags' not in blocked else ""
+        num = self.num if 'num' not in blocked else ""
+        source = f"_SRC[{self.src_props.energy:.2f} {self.src_props.energy_unit}]" if 'energy' not in blocked else ""
+        return f"{quantity}{tagstring}{num}{source}"
+
+        
+
 
     def setTag(self, tag):
         # if self.__tags == None:
