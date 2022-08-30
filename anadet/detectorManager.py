@@ -118,6 +118,15 @@ class DetectorManager:
                 res[newkey] = (newset, value)
         return res
 
+    def filterNum(self, detectors : Dict[str, tuple[set, Detector]], num : str) -> Dict[str, tuple[set, Detector]]:
+        res = dict()
+        for key, det_pair in detectors.items():
+            blocked_set, value = det_pair
+            if num == value.detProps.num:
+                newset = blocked_set.copy()
+                res[key] = (newset, value)
+        return res
+
     def prep_dets_for_filtering(self, detectors : Dict[str, Detector]) -> Dict[str, tuple[set, Detector]]:
         res = dict()
         for key, value in detectors.items():

@@ -57,9 +57,6 @@ class DetectorProps:
         parts = [i for i in parts if i]
         return "_".join(parts)
 
-        
-
-
     def setTag(self, tag):
         # if self.__tags == None:
         #     self.__tags = list()
@@ -185,6 +182,27 @@ class Detector:
         self.hl_res = dr
         if not self.hl_res.stat.has_calculated:
             self.hl_res.calculateStatistics()
+
     # next methods apply to hl result
     def get_means_hl(self):
-        return self.hl_res.BINS[self.hl_res.bin_index]
+        # TODO change y and y2 and other data to start with 0 for all of them
+        return self.hl_res.BINS[self.hl_res.bin_index],\
+            [0] + self.hl_res.stat.means,\
+            [0] + self.hl_res.stat.lover_bound,\
+            self.hl_res.stat.upper_bound + [0]
+
+    def get_norm_hl(self): # sum = 1
+        s = sum(self.hl_res.y)
+        res = [0]
+        for item in self.hl_res.y:
+            res.append(item/s)
+        return self.hl_res.BINS[self.hl_res.bin_index], res
+
+    def get_norm_width_hl(self):
+        s = sum(self.hl_res.y)
+        res = [0]
+        for i in range(len(self.hl_res.y)):
+            width = self.hl_res.BINS[self.hl_res.bin_index][i+1] - self.hl_res.BINS[self.hl_res.bin_index][i]
+            res.append(self.hl_res.y[i]/s/width)
+        return self.hl_res.BINS[self.hl_res.bin_index], res
+        

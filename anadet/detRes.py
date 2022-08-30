@@ -9,13 +9,15 @@ from dataclasses import dataclass, field
 @dataclass
 class StatisticData:
     nhists: int
-    means: List[float] = field(default_factory=list)
-    variances: List[float] = field(default_factory=list)
-    st_devs: List[float] = field(default_factory=list) # sigma
-    deltas: List[float] = field(default_factory=list)
+    means: List[float] = None
+    variances: List[float] = None
+    st_devs: List[float] = None # sigma
+    deltas: List[float] = None
+    lover_bound: List[float] = None
+    upper_bound: List[float] = None
     # some params
     delta_min: float = math.inf
-    delta_max: float = - math.inf
+    delta_max: float = -math.inf
     has_calculated: bool = False
 
 class DetRes:
@@ -173,6 +175,9 @@ class DetRes:
         self.stat.means = [i/self.stat.nhists for i in self.y]
         self.stat.variances = [ self.calcVar(self.y[i], self.y2[i], self.stat.nhists) for i in range(len(self.y)) ]
         self.stat.st_devs = [math.sqrt(Di/self.stat.nhists) for Di in self.stat.variances]
+        # upper and lower bounds for graphic plot
+        self.stat.lover_bound = [self.stat.means[i] - self.stat.st_devs[i] for i in range(len(self.y))]
+        self.stat.upper_bound = [self.stat.means[i] + self.stat.st_devs[i] for i in range(len(self.y))]
         # TODO - zero division problem, need to indicate, is the value a zero or just a small value
         self.stat.deltas = [0.0 for _ in range(len(self.y))]
         for i in range(len(self.y)):
@@ -304,7 +309,7 @@ class DetRes:
             self.calculateStatistics()
         res = "DETRES_HEADER\n"
         res += f"Name: {self.name}" + "\n"
-        res += str(self) + "\n"
+        # res += str(self) + "\n"
         res += f"Histories: {self.stat.nhists:.2E}" + "\n"
         res += f"Overflow_bot: {self.overflow_bot}" + "\n"
         res += f"Overflow_top: {self.overflow_top}" + "\n"
