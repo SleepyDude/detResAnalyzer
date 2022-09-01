@@ -1,4 +1,4 @@
-from dash import Dash, html, dcc, Input, Output
+from dash import Dash, html, dcc, Input, Output, State
 import plotly.graph_objects as go
 import plotly.express as px
 import pandas as pd
@@ -103,6 +103,16 @@ fig.update_layout(hovermode='x unified', height=800, )
 #     ]
 # )
 
+QUANTITIES = ['Spec', 'Phi', 'Theta']
+TAGS = ['Vert', 'Diag', 'XWall', 'YWall']
+ENERGY = ['1 MeV', '100 keV', '1 keV', '1 eV', 'All']
+NUMS = {
+    'Vert': 8,
+    'Diag': 10,
+    'XWall': 10,
+    'YWall': 10
+}
+
 app.layout = html.Div(
     children=[
         html.Div(
@@ -123,6 +133,96 @@ app.layout = html.Div(
         html.Div(
             children=[
                 html.Div(
+                    children=[
+                        html.Div(children="Quantity", className="menu-title"),
+                        dcc.Dropdown(
+                            id="quantity-filter",
+                            options=[
+                                {"label": quantity, "value": quantity}
+                                for quantity in QUANTITIES
+                            ],
+                            value="Spec",
+                            clearable=False,
+                            className="dropdown",
+                        ),
+                    ]
+                ),
+                html.Div(
+                    children=[
+                        html.Div(children="Type", className="menu-title"),
+                        dcc.Dropdown(
+                            id="tag-filter",
+                            options=[
+                                {"label": tag, "value": tag}
+                                for tag in TAGS
+                            ],
+                            value="Vert",
+                            clearable=False,
+                            searchable=False,
+                            className="dropdown",
+                        ),
+                    ],
+                ),
+                html.Div(
+                    children=[
+                        html.Div(
+                            children="Energy",
+                            className="menu-title"
+                            ),
+                            dcc.Dropdown(
+                                id="energy-filter",
+                                options=[
+                                    {"label": energy, "value": energy}
+                                    for energy in ENERGY
+                                ],
+                                value="All",
+                                clearable=False,
+                                searchable=False,
+                                className="dropdown",
+                        ),
+                    ]
+                ),
+            ],
+            className="menu",
+        ),
+        html.Div(
+            children=[
+                html.Div(
+                    children=[
+                        html.Div(
+                            children="Num",
+                            className="menu-title-num menu-title"
+                        ),
+                        dcc.Dropdown(
+                            id="num-filter",
+                            options=[],
+                            multi=True,
+                            className="dropdown",
+                            value='All'
+                        ),
+                    ],
+                ),
+                html.Div(
+                    children=[
+                        html.Div(
+                            children="...",
+                            className="menu-title-num menu-title"
+                        ),
+                        html.Button(
+                            'Plot', 
+                            id='submit-plot', 
+                            className='Select-control plot-btn',
+                            n_clicks=0,
+                        ),
+                    ]
+                ),
+            ],
+            className="menu-num",
+        ),
+        html.P(id='graph-title', children=[]),
+        html.Div(
+            children=[
+                html.Div(
                     children=dcc.Graph(
                         id="spec-chart",
                         figure=fig
@@ -132,23 +232,64 @@ app.layout = html.Div(
             ],
             className="wrapper",
         ),
+        html.Div(
+            children=[
+                html.Div(
+                    children=dcc.Graph(
+                        id="theta-chart",
+                        figure=fig2
+                    ),
+                    className="card",
+                ),
+            ],
+            className="wrapper",
+        ),
     ]
 )
 
+@app.callback(
+    Output('num-filter', 'options'),
+    Input('tag-filter', 'value')
+)
+def update_num_filter(tag):
+    options = [str(i) for i in range(1,NUMS[tag]+1)]
+    options.append('All')
+    return options
 
+@app.callback(
+    Output('spec-chart', 'figure'),
+    Input('submit-plot', 'n_clicks'),
+    State('quantity-filter', 'value'),
+    State('tag-filter', 'value'),
+    State('energy-filter', 'value'),
+    State('num-filter', 'value'),
+)
+def plot_graph(n_clicks, quantity, tag, aenergy_string: str, anums):
+    energies = []
+    if aenergy_string == "All":
+        energies = [i for i in ENERGY if i != "All"]
+    else:
+        energies.append(aenergy_string)
+    
+    nums = []
+    if 'All' in anums:
+        nums = [i for i in range(1, NUMS[tag]+1)]
+    else:
+        nums = [i for i in anums]
 
-# test data
-# for right plot with 'vh' line_shape we need to put [0] to the begin of 'y' list
-# y = [1,2,3,4,5,6,7,8,9,8,7,6,5,4,3,2,1] # len = 17
-# y = [0] + y
-# # bin i 0     1     2      3      4      5      6      7      8      9     10     11     12     13     14     15     16     17 
-# x = [1.23, 4.56, 7.89, 10.11, 12.13, 14.15, 16.17, 18.19, 20.21, 22.23, 24.25, 26.27, 28.29, 30.31, 32.33, 34.35, 36.37, 38.39] # len = 18
-# fig.add_trace(go.Scatter(
-#     x = x,
-#     y = y,
-#     line_shape='vh',
-#     name='test data'
-# ))
+    dets = dm.filterQuantity(detectors, quantity)
+    dets = dm.filterTag(dets, tag)
+    for en in energies:
+        En = float(en.split()[0])
+        E_unit = en.split()[1]
+        for num in nums:
+            d = dm.filterEnergy(dets, En, E_unit)
+            d = dm.filterNum(d, num)
+            for keyname, value in d.items():
+                _, det = value
+                plotNormDetector(fig, det, keyname)
+            
+    return fig
 
 def plotMeansDetector(fig: go.Figure, det: Detector, name: str):
     x, y, _, _ = det.get_means_hl()
@@ -180,159 +321,16 @@ def plotNormWidthDetector(fig: go.Figure, det: Detector, name: str):
         line_shape='vh',
     ))
 
+def plotNormWidthTheta(fig: go.Figure, det: Detector, name: str):
+    x, y, = det.get_norm_width_theta_hl()
+    color = gen_col()
+    fig.add_trace(go.Scatter(
+        x=x, y=y,
+        line_color=f'rgb({color[0]},{color[1]},{color[2]})',
+        name=name,
+        line_shape='vh',
+    ))
+
 if __name__ == "__main__":
     detectors = dm.prep_dets_for_filtering(dm.detectors)
-    
-    # Vert specs
-    # dets = dm.filterQuantity(detectors, 'Spec')
-    # dets = dm.filterTag(dets, 'Vert')
-    # dets = dm.filterEnergy(dets, 1.0, 'MeV')
-    # for keyname, value in dets.items():
-    #     detset, det = value
-    #     plotMeansDetector(fig, det, keyname)
-    # fig.update_layout(title_text='Спектры вертикальных детекторов для энергии 1 МэВ')
-
-    # Vert specs norm
-    # dets = dm.filterQuantity(detectors, 'Spec')
-    # dets = dm.filterTag(dets, 'Vert')
-    # dets = dm.filterEnergy(dets, 1.0, 'MeV')
-    # for keyname, value in dets.items():
-    #     detset, det = value
-    #     plotNormDetector(fig, det, keyname)
-    # fig.update_layout(title_text='Нормированные спектры вертикальных детекторов для энергии 1 МэВ')
-
-    # Vert specs norm 1 and width
-    # dets = dm.filterQuantity(detectors, 'Spec')
-    # dets = dm.filterTag(dets, 'Vert')
-    # dets = dm.filterEnergy(dets, 1.0, 'MeV')
-    # for keyname, value in dets.items():
-    #     detset, det = value
-    #     plotNormWidthDetector(fig, det, keyname)
-    # fig.update_layout(title_text='Нормированные на 1 и на ширину канала спектры вертикальных детекторов для энергии 1 МэВ')
-
-    # Vert Phi norm 1
-    # dets = dm.filterQuantity(detectors, 'Phi')
-    # dets = dm.filterTag(dets, 'Vert')
-    # dets = dm.filterEnergy(dets, 1.0, 'MeV')
-    # for keyname, value in dets.items():
-    #     detset, det = value
-    #     plotNormDetector(fig, det, keyname)
-    # fig.update_layout(title_text='Нормированные на 1 и на ширину канала угловые (Phi) для вертикальных детекторов для энергии 1 МэВ')
-
-    # Vert Theta norm 1
-    # dets = dm.filterQuantity(detectors, 'Theta')
-    # dets = dm.filterTag(dets, 'Vert')
-    # dets = dm.filterEnergy(dets, 1.0, 'MeV')
-    # for keyname, value in dets.items():
-    #     detset, det = value
-    #     plotNormDetector(fig, det, keyname)
-    # fig.update_layout(title_text='Нормированные на 1 и на ширину канала угловые (Theta) для вертикальных детекторов для энергии 1 МэВ')
-
-    # Diag Spec 1 MeV
-    # dets = dm.filterQuantity(detectors, 'Spec')
-    # dets = dm.filterTag(dets, 'Diag')
-    # dets = dm.filterEnergy(dets, 1.0, 'MeV')
-    # for keyname, value in dets.items():
-    #     detset, det = value
-    #     plotMeansDetector(fig, det, keyname)
-    # fig.update_layout(title_text='Спектры для диагональных детекторов для энергии 1 МэВ')
-
-    # Diag Spec 1 MeV
-    # dets = dm.filterQuantity(detectors, 'Spec')
-    # dets = dm.filterTag(dets, 'Diag')
-    # dets = dm.filterEnergy(dets, 1.0, 'MeV')
-    # for keyname, value in dets.items():
-    #     detset, det = value
-    #     plotNormWidthDetector(fig, det, det.detProps.getKeyname({'quantity', 'energy'}))
-    # fig.update_layout(title_text='Нормированные на 1 и на ширину канала спектры для диагональных детекторов для энергии 1 МэВ')
-
-    # Diag Phi 1 MeV
-    # dets = dm.filterQuantity(detectors, 'Phi')
-    # dets = dm.filterTag(dets, 'Diag')
-    # dets = dm.filterEnergy(dets, 1.0, 'MeV')
-    # for keyname, value in dets.items():
-    #     detset, det = value
-    #     plotNormWidthDetector(fig, det, det.detProps.getKeyname({'quantity', 'energy', 'Diag'}))
-    # fig.update_layout(title_text='Нормированные на 1 и на ширину канала углы (Phi) для диагональных детекторов для энергии 1 МэВ')
-
-    # Diag Theta 1 MeV
-    # dets = dm.filterQuantity(detectors, 'Theta')
-    # dets = dm.filterTag(dets, 'Diag')
-    # dets = dm.filterEnergy(dets, 1.0, 'MeV')
-    # for keyname, value in dets.items():
-    #     detset, det = value
-    #     plotNormWidthDetector(fig, det, det.detProps.getKeyname({'quantity', 'energy', 'Diag'}))
-    # fig.update_layout(title_text='Нормированные на 1 и на ширину канала углы (Theta) для диагональных детекторов для энергии 1 МэВ')
-
-    # Diag Spec Different energies
-    # detectors = dm.filterNum(detectors, '10')
-    # detectors = dm.filterQuantity(detectors, 'Spec')
-    # detectors = dm.filterTag(detectors, 'Diag')
-
-    # dets = dm.filterEnergy(detectors, 1.0, 'MeV')
-    # for keyname, value in dets.items():
-    #     detset, det = value
-    #     plotNormWidthDetector(fig, det, det.detProps.getKeyname({'quantity', 'Diag'}))
-
-    # dets = dm.filterEnergy(detectors, 100.0, 'keV')
-    # for keyname, value in dets.items():
-    #     detset, det = value
-    #     plotNormWidthDetector(fig, det, det.detProps.getKeyname({'quantity', 'Diag'}))
-
-    # dets = dm.filterEnergy(detectors, 1.0, 'keV')
-    # for keyname, value in dets.items():
-    #     detset, det = value
-    #     plotNormWidthDetector(fig, det, det.detProps.getKeyname({'quantity', 'Diag'}))
-
-    # dets = dm.filterEnergy(detectors, 1.0, 'eV')
-    # for keyname, value in dets.items():
-    #     detset, det = value
-    #     plotNormWidthDetector(fig, det, det.detProps.getKeyname({'quantity', 'Diag'}))
-
-    # fig.update_layout(title_text='Спектры для диагональных детекторов для разных энергий')
-
-
-
-    # Diag Phi Different energies
-    # detectors = dm.filterNum(detectors, '1')
-    # detectors = dm.filterQuantity(detectors, 'Theta')
-    # detectors = dm.filterTag(detectors, 'XWall')
-
-    # dets = dm.filterEnergy(detectors, 1.0, 'MeV')
-    # for keyname, value in dets.items():
-    #     detset, det = value
-    #     plotNormWidthDetector(fig, det, det.detProps.getKeyname({'quantity', 'XWall'}))
-
-    # dets = dm.filterEnergy(detectors, 100.0, 'keV')
-    # for keyname, value in dets.items():
-    #     detset, det = value
-    #     plotNormWidthDetector(fig, det, det.detProps.getKeyname({'quantity', 'XWall'}))
-
-    # dets = dm.filterEnergy(detectors, 1.0, 'keV')
-    # for keyname, value in dets.items():
-    #     detset, det = value
-    #     plotNormWidthDetector(fig, det, det.detProps.getKeyname({'quantity', 'XWall'}))
-
-    # dets = dm.filterEnergy(detectors, 1.0, 'eV')
-    # for keyname, value in dets.items():
-    #     detset, det = value
-    #     plotNormWidthDetector(fig, det, det.detProps.getKeyname({'quantity', 'XWall'}))
-
-    # fig.update_layout(title_text='Угловые распределения (Theta) в XWall детекторе для разных энергий')
-    # fig.update_layout(title_text='Спектры для вертикальных детекторов для разных энергий')
-
-# XWall 
-    # detectors = dm.filterNum(detectors, '1')
-    detectors = dm.filterQuantity(detectors, 'Spec')
-    detectors = dm.filterTag(detectors, 'XWall')
-
-    dets = dm.filterEnergy(detectors, 1.0, 'MeV')
-    for keyname, value in dets.items():
-        detset, det = value
-        plotNormWidthDetector(fig, det, det.detProps.getKeyname({'quantity', 'XWall', 'energy'}))
-
-    # fig.update_layout(title_text='Угловые распределения (Theta) в XWall детекторе для разных энергий')
-    fig.update_layout(title_text='Спектры для детекторов вдоль стены 50м для разных энергий')
-
-
     app.run_server(debug=True)

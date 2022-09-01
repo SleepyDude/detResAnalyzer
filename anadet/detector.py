@@ -2,6 +2,7 @@ from anadet.detRes import DetRes
 from pathlib import Path
 from dataclasses import dataclass, field
 from typing import List
+import math
 
 @dataclass
 class SourceProps:
@@ -206,3 +207,12 @@ class Detector:
             res.append(self.hl_res.y[i]/s/width)
         return self.hl_res.BINS[self.hl_res.bin_index], res
         
+    def get_norm_width_theta_hl(self):
+        s = sum(self.hl_res.y)
+        res = [0]
+        for i in range(len(self.hl_res.y)):
+            theta1 = self.hl_res.BINS[self.hl_res.bin_index][i]
+            theta2 = self.hl_res.BINS[self.hl_res.bin_index][i+1]
+            omega = 2*math.pi*(math.cos(theta1*math.pi/180.0) - math.cos(theta2*math.pi/180.0))
+            res.append(self.hl_res.y[i]/s/omega)
+        return self.hl_res.BINS[self.hl_res.bin_index], res
