@@ -76,7 +76,7 @@ def test_append_result_with_meta(fm):
 def test_filter_energy(dm: DetectorManager):
     detectors = dm.prep_dets_for_filtering(dm.detectors)
 
-    res_detectors = dm.filterEnergy(detectors, 0.1, 'MeV')
+    res_detectors = dm.filterEnergies(detectors, [(0.1, 'MeV')])
     assert 'Spec_Diag_1' in res_detectors
     assert 'Spec_Diag_2' in res_detectors
     assert 'Spec_Diag_3' in res_detectors
@@ -85,7 +85,7 @@ def test_filter_energy(dm: DetectorManager):
     assert 'Spec_Diag_6' in res_detectors
     assert len(res_detectors) == 6
 
-    res_detectors2 = dm.filterEnergy(detectors, 1, 'keV')
+    res_detectors2 = dm.filterEnergies(detectors, [(1, 'keV')])
     assert 'Phi_Diag_1' in res_detectors2
     assert 'Phi_Diag_2' in res_detectors2
     assert 'Phi_Diag_3' in res_detectors2
@@ -99,7 +99,7 @@ def test_filter_energy(dm: DetectorManager):
     assert 'Spec_Vert_2' in res_detectors2
     assert len(res_detectors2) == 11
 
-    res_detectors3 = dm.filterEnergy(detectors, 10, 'keV')
+    res_detectors3 = dm.filterEnergies(detectors, [(10, 'keV')])
     assert len(res_detectors3) == 0
 
 def test_filter_quantity(dm: DetectorManager):
@@ -150,7 +150,7 @@ def test_filter_sequence(dm: DetectorManager):
     detectors = dm.prep_dets_for_filtering(dm.detectors)
     res = dm.filterQuantity(detectors, 'Spec')
     res = dm.filterTag(res, 'Diag')
-    res = dm.filterEnergy(res, 1, 'keV')
+    res = dm.filterEnergies(res, [(1, 'keV')])
     assert len(res) == 6
     assert '1' in res
     assert '2' in res

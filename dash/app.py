@@ -50,58 +50,28 @@ def gen_col():
     return colors[gen_col.i]
 gen_col.i = 13
 
-fig = go.Figure()
-fig2 = go.Figure()
-# fig3 = go.Figure()
-# fig4 = go.Figure()
-# fig5 = go.Figure()
-# fig6 = go.Figure()
+spec_fig = go.Figure()
+phi_fig = go.Figure()
+theta_fig = go.Figure()
 
-fig.update_xaxes(type="log")
-fig.update_yaxes(type="log")
+spec_fig.update_layout(hovermode='x unified', height=800, )
+phi_fig.update_layout(hovermode='x unified', height=800, )
+theta_fig.update_layout(hovermode='x unified', height=800, )
 
-fig.update_layout(hovermode='x unified', height=800, )
+spec_fig.update_xaxes(type="log")
+spec_fig.update_yaxes(type="log")
 
-# test_items = ['MeV', '1', 'keV', 'lol']
+phi_fig.update_yaxes(type="log")
+theta_fig.update_yaxes(type="log")
 
-# app.layout = html.Div(children=[
-#     dcc.Dropdown(
-#         options=[{'label': i, 'value': i} for i in test_items],
-#         value='Age',
-#         id='dropdown',
-#         style={"width": "50%", "offset":1,},
-#         clearable=False,
-#     ),
-#     dcc.Graph(
-#         id='first-graph',
-#         figure=fig
-#     )
-# ])
+spec_fig.update_xaxes(title_text="Энергия, МэВ")
+spec_fig.update_yaxes(title_text="Плотность потока, нормированная на 1 и на ширину канала")
 
-# app.layout = html.Div(
-#     children=[
-#         html.Div(
-#             children=[
-#                 html.P(children="⚙️", className="header-emoji"),
-#                 html.H1(children="Аналитика детекторов в помещении 100х50х10 метров", className="header-title",),
-#                 html.P(
-#                     children="Анализ зависимости спектра и углового распределения"
-#                     " от детектора, его удаления от источника и от стен"
-#                     " Источник расположен в углу комнаты на высоте 1.5 м. и на расстоянии 0.5 м. от стен",
-#                     className="header-description",
-#                 ),
-#             ],
-#             className="header",
-#         )
+phi_fig.update_xaxes(title_text="Угол φ, град.")
+phi_fig.update_yaxes(title_text="Плотность потока, нормированная на 1")
 
-#         dcc.Graph(
-#             figure=fig
-#         ),
-#         dcc.Graph(
-#             figure=fig2
-#         ),
-#     ]
-# )
+theta_fig.update_xaxes(title_text="Угол θ, град.")
+theta_fig.update_yaxes(title_text="Плотность потока, нормированная на 1 и на единичный телесный угол")
 
 QUANTITIES = ['Spec', 'Phi', 'Theta']
 TAGS = ['Vert', 'Diag', 'XWall', 'YWall']
@@ -132,21 +102,21 @@ app.layout = html.Div(
         ),
         html.Div(
             children=[
-                html.Div(
-                    children=[
-                        html.Div(children="Quantity", className="menu-title"),
-                        dcc.Dropdown(
-                            id="quantity-filter",
-                            options=[
-                                {"label": quantity, "value": quantity}
-                                for quantity in QUANTITIES
-                            ],
-                            value="Spec",
-                            clearable=False,
-                            className="dropdown",
-                        ),
-                    ]
-                ),
+                # html.Div(
+                #     children=[
+                #         html.Div(children="Quantity", className="menu-title"),
+                #         dcc.Dropdown(
+                #             id="quantity-filter",
+                #             options=[
+                #                 {"label": quantity, "value": quantity}
+                #                 for quantity in QUANTITIES
+                #             ],
+                #             value="Spec",
+                #             clearable=False,
+                #             className="dropdown",
+                #         ),
+                #     ]
+                # ),
                 html.Div(
                     children=[
                         html.Div(children="Type", className="menu-title"),
@@ -179,6 +149,7 @@ app.layout = html.Div(
                                 clearable=False,
                                 searchable=False,
                                 className="dropdown",
+                                multi=True,
                         ),
                     ]
                 ),
@@ -198,7 +169,7 @@ app.layout = html.Div(
                             options=[],
                             multi=True,
                             className="dropdown",
-                            value='All'
+                            value='1'
                         ),
                     ],
                 ),
@@ -225,7 +196,19 @@ app.layout = html.Div(
                 html.Div(
                     children=dcc.Graph(
                         id="spec-chart",
-                        figure=fig
+                        figure=spec_fig
+                    ),
+                    className="card",
+                ),
+            ],
+            className="wrapper",
+        ),
+        html.Div(
+            children=[
+                html.Div(
+                    children=dcc.Graph(
+                        id="phi-chart",
+                        figure=phi_fig
                     ),
                     className="card",
                 ),
@@ -237,7 +220,7 @@ app.layout = html.Div(
                 html.Div(
                     children=dcc.Graph(
                         id="theta-chart",
-                        figure=fig2
+                        figure=theta_fig
                     ),
                     className="card",
                 ),
@@ -258,38 +241,54 @@ def update_num_filter(tag):
 
 @app.callback(
     Output('spec-chart', 'figure'),
+    Output('phi-chart', 'figure'),
+    Output('theta-chart', 'figure'),
     Input('submit-plot', 'n_clicks'),
-    State('quantity-filter', 'value'),
     State('tag-filter', 'value'),
     State('energy-filter', 'value'),
     State('num-filter', 'value'),
 )
-def plot_graph(n_clicks, quantity, tag, aenergy_string: str, anums):
+def plot_graph(n_clicks, tag, aenergies: list, anums):
+    if n_clicks is None or n_clicks == 0:
+        return spec_fig, phi_fig, theta_fig
+    # clear all data 
+    spec_fig.data = []
+    phi_fig.data = []
+    theta_fig.data = []
+
     energies = []
-    if aenergy_string == "All":
+    if "All" in aenergies:
         energies = [i for i in ENERGY if i != "All"]
     else:
-        energies.append(aenergy_string)
-    
+        energies = aenergies
+    energies = [(float(i.split()[0]), i.split()[1]) for i in energies]
     nums = []
     if 'All' in anums:
-        nums = [i for i in range(1, NUMS[tag]+1)]
+        nums = [str(i) for i in range(1, NUMS[tag]+1)]
     else:
         nums = [i for i in anums]
 
-    dets = dm.filterQuantity(detectors, quantity)
-    dets = dm.filterTag(dets, tag)
-    for en in energies:
-        En = float(en.split()[0])
-        E_unit = en.split()[1]
-        for num in nums:
-            d = dm.filterEnergy(dets, En, E_unit)
-            d = dm.filterNum(d, num)
-            for keyname, value in d.items():
-                _, det = value
-                plotNormDetector(fig, det, keyname)
-            
-    return fig
+    dets = dm.filterTag(detectors, tag)
+    dets = dm.filterEnergies(dets, energies)
+    dets = dm.filterNums(dets, nums)
+
+    spec_dets = dm.filterQuantity(dets, 'Spec')
+    # print(f'Фильтрую спек, получаю {len(spec_dets)} детекторов')
+    phi_dets = dm.filterQuantity(dets, 'Phi')
+    # print(f'Фильтрую фи, получаю {len(phi_dets)} детекторов')
+    theta_dets = dm.filterQuantity(dets, 'Theta')
+    # print(f'Фильтрую тета, получаю {len(theta_dets)} детекторов')
+    for keyname, value in spec_dets.items():
+        _, det = value
+        plotNormWidthDetector(spec_fig, det, keyname)
+    for keyname, value in phi_dets.items():
+        _, det = value
+        plotNormDetector(phi_fig, det, keyname)
+    for keyname, value in theta_dets.items():
+        _, det = value
+        plotNormWidthTheta(theta_fig, det, keyname)
+
+    return spec_fig, phi_fig, theta_fig
 
 def plotMeansDetector(fig: go.Figure, det: Detector, name: str):
     x, y, _, _ = det.get_means_hl()

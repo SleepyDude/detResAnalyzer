@@ -85,15 +85,17 @@ class DetectorManager:
                 keyword = '-'.join(tags)
                 self.meta_data[keyword] = dict(loaded_data[item_key]) # dict for copy!
 
-    def filterEnergy(self, detectors : Dict[str, tuple[set, Detector]], energy : float, energy_unit : str) -> Dict[str, tuple[set, Detector]]:
+    def filterEnergies(self, detectors : Dict[str, tuple[set, Detector]], energies : list[tuple[float, str]]) -> Dict[str, tuple[set, Detector]]:
         res = dict()
         for _, det_pair in detectors.items():
             blocked_set, value = det_pair
-            if icl(value.detProps.src_props.energy, energy, abs_tol=1e-14) and value.detProps.src_props.energy_unit == energy_unit:
-                newset = blocked_set.copy()
-                newset.add('energy')
-                newkey = value.detProps.getKeyname(newset)
-                res[newkey] = (newset, value)
+            for energy, energy_unit in energies:
+                if icl(value.detProps.src_props.energy, energy, abs_tol=1e-14) and value.detProps.src_props.energy_unit == energy_unit:
+                    newset = blocked_set.copy()
+                    if len(energies) == 1:
+                        newset.add('energy') # if it's only one energy, so we will not write it near the line
+                    newkey = value.detProps.getKeyname(newset)
+                    res[newkey] = (newset, value)
         return res
         
     def filterQuantity(self, detectors : Dict[str, tuple[set, Detector]], quantity : str) -> Dict[str, tuple[set, Detector]]:
@@ -118,13 +120,14 @@ class DetectorManager:
                 res[newkey] = (newset, value)
         return res
 
-    def filterNum(self, detectors : Dict[str, tuple[set, Detector]], num : str) -> Dict[str, tuple[set, Detector]]:
+    def filterNums(self, detectors : Dict[str, tuple[set, Detector]], nums : List[str]) -> Dict[str, tuple[set, Detector]]:
         res = dict()
         for key, det_pair in detectors.items():
             blocked_set, value = det_pair
-            if num == value.detProps.num:
-                newset = blocked_set.copy()
-                res[key] = (newset, value)
+            for num in nums:
+                if num == value.detProps.num:
+                    newset = blocked_set.copy()
+                    res[key] = (newset, value)
         return res
 
     def prep_dets_for_filtering(self, detectors : Dict[str, Detector]) -> Dict[str, tuple[set, Detector]]:

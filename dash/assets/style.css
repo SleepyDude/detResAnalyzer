@@ -86,17 +86,12 @@ body {
     color: #079A82;
 }
 
-.menu-title-num {
-    /* margin-left: 150px; */
-}
-
-
 .dropdown-num-wrapper {
     width: 800px;
 }
 
 .Select--multi > .Select-control {
-    width: 500px;
+    width: 400px;
     height: 48px;
     margin: auto;
 }
