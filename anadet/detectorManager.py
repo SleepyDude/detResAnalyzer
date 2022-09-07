@@ -1,7 +1,7 @@
 import re
 
-from anadet.dataSearcher import DataSearcher
-from anadet.detector import Detector, DetectorProps, SourceProps, GeomProps
+from .dataSearcher import DataSearcher
+from .detector import Detector, DetectorProps, SourceProps, GeomProps
 import yaml
 from typing import List, Dict, Tuple
 from math import isclose as icl

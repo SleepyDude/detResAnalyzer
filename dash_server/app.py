@@ -1,15 +1,16 @@
-from dash import Dash, html, dcc, Input, Output, State
+from dash import Dash, html, dcc
 import plotly.graph_objects as go
-from random import randint
 import distinctipy
 
-from pathlib import Path
-import sys
-BASE_DIR = Path(__file__).resolve().parent.parent
-sys.path.append(str(BASE_DIR))
-from anadet.detector import Detector
+# append parrent dir to path to 
+# from pathlib import Path
+# import sys
+# BASE_DIR = Path(__file__).resolve().parent.parent
+# sys.path.append(str(BASE_DIR))
 
-from dash_server.load_results import detectors, dm
+from ..anadet.detector import Detector
+
+from .load_results import detectors, dm
 
 # DASH PART
 external_stylesheets = [
@@ -202,6 +203,51 @@ app.layout = html.Div(
     ]
 )
 
+def plotMeansDetector(fig: go.Figure, det: Detector, name: str):
+    x, y, _, _ = det.get_means_hl()
+    color = gen_col()
+    fig.add_trace(go.Scatter(
+        x=x, y=y,
+        line_color=f'rgb({color[0]},{color[1]},{color[2]})',
+        name=name,
+        line_shape='vh',
+    ))
+
+def plotNormDetector(fig: go.Figure, det: Detector, name: str):
+    x, y, = det.get_norm_hl()
+    color = gen_col()
+    fig.add_trace(go.Scatter(
+        x=x, y=y,
+        line_color=f'rgb({color[0]},{color[1]},{color[2]})',
+        name=name,
+        line_shape='vh',
+    ))
+
+def plotNormWidthDetector(fig: go.Figure, det: Detector, name: str):
+    x, y, = det.get_norm_width_hl()
+    color = gen_col()
+    fig.add_trace(go.Scatter(
+        x=x, y=y,
+        line_color=f'rgb({color[0]},{color[1]},{color[2]})',
+        name=name,
+        line_shape='vh',
+    ))
+
+def plotNormWidthTheta(fig: go.Figure, det: Detector, name: str):
+    x, y, = det.get_norm_width_theta_hl()
+    color = gen_col()
+    fig.add_trace(go.Scatter(
+        x=x, y=y,
+        line_color=f'rgb({color[0]},{color[1]},{color[2]})',
+        name=name,
+        line_shape='vh',
+    ))
+
+
+
+# from dash_server.app import app
+from dash import Input, Output, State
+
 @app.callback(
     Output('num-filter', 'options'),
     Input('tag-filter', 'value')
@@ -276,46 +322,6 @@ def plot_graph(n_clicks, tag, aenergies: list, anums):
         plotNormWidthTheta(theta_fig, det, keyname)
 
     return spec_fig, phi_fig, theta_fig
-
-def plotMeansDetector(fig: go.Figure, det: Detector, name: str):
-    x, y, _, _ = det.get_means_hl()
-    color = gen_col()
-    fig.add_trace(go.Scatter(
-        x=x, y=y,
-        line_color=f'rgb({color[0]},{color[1]},{color[2]})',
-        name=name,
-        line_shape='vh',
-    ))
-
-def plotNormDetector(fig: go.Figure, det: Detector, name: str):
-    x, y, = det.get_norm_hl()
-    color = gen_col()
-    fig.add_trace(go.Scatter(
-        x=x, y=y,
-        line_color=f'rgb({color[0]},{color[1]},{color[2]})',
-        name=name,
-        line_shape='vh',
-    ))
-
-def plotNormWidthDetector(fig: go.Figure, det: Detector, name: str):
-    x, y, = det.get_norm_width_hl()
-    color = gen_col()
-    fig.add_trace(go.Scatter(
-        x=x, y=y,
-        line_color=f'rgb({color[0]},{color[1]},{color[2]})',
-        name=name,
-        line_shape='vh',
-    ))
-
-def plotNormWidthTheta(fig: go.Figure, det: Detector, name: str):
-    x, y, = det.get_norm_width_theta_hl()
-    color = gen_col()
-    fig.add_trace(go.Scatter(
-        x=x, y=y,
-        line_color=f'rgb({color[0]},{color[1]},{color[2]})',
-        name=name,
-        line_shape='vh',
-    ))
 
 if __name__ == "__main__":
     app.run_server(debug=True)

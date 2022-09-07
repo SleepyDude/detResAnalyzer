@@ -1,4 +1,4 @@
-from anadet.dataSearcher import DataSearcher
+from ..anadet.dataSearcher import DataSearcher
 import math
 
 def test_lookForEnergy():

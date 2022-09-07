@@ -1,14 +1,7 @@
-from pathlib import Path
-import sys
-
-BASE_DIR = Path(__file__).resolve().parent.parent
-sys.path.append(str(BASE_DIR))
-
-from anadet.detRes import DetRes
-from anadet.detectorManager import DetectorManager
-from anadet.filesManager import FilesManager
-from pprint import pprint as pp
-from tests.config import BASE_DIR
+from ..anadet.detRes import DetRes
+from ..anadet.detectorManager import DetectorManager
+from ..anadet.filesManager import FilesManager
+from .config import BASE_DIR
 import pytest
 import math
 

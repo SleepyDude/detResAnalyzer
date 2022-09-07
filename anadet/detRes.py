@@ -1,7 +1,7 @@
 from cmath import isclose
 from dataclasses import dataclass
 import math
-from anadet.dataSearcher import DataSearcher
+from .dataSearcher import DataSearcher
 from pathlib import Path
 from typing import List
 from dataclasses import dataclass, field

@@ -1,6 +1,6 @@
-from anadet.metaReader import MetaReader
+from ..anadet.metaReader import MetaReader
 import math
-from tests.config import BASE_DIR
+from .config import BASE_DIR
 
 def test_readMeta():
     metapath = BASE_DIR.joinpath('tests/test_resources/tests_1/meta.yaml')

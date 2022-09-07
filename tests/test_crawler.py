@@ -1,8 +1,5 @@
-from pathlib import Path
-
-from anadet.crawler import Crawler
-
-from tests.config import BASE_DIR
+from ..anadet.crawler import Crawler
+from .config import BASE_DIR
 
 def test_file_crawler_class_exists():
     assert BASE_DIR.joinpath("anadet/crawler.py").is_file()

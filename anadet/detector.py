@@ -1,4 +1,4 @@
-from anadet.detRes import DetRes
+from .detRes import DetRes
 from pathlib import Path
 from dataclasses import dataclass, field
 from typing import List

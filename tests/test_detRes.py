@@ -1,15 +1,9 @@
 from cmath import inf
 import pytest
 import math
-# from tests.config import BASE_DIR
+from .config import BASE_DIR
 from pathlib import Path
-import sys
-from pprint import pprint as pp
-
-BASE_DIR = Path(__file__).resolve().parent.parent
-sys.path.append(str(BASE_DIR))
-
-from anadet.detRes import DetRes
+from ..anadet.detRes import DetRes
 
 
 def test_processCSVHeader():

@@ -1,5 +1,5 @@
-from anadet.detector import Detector, DetectorProps, SourceProps
-from tests.config import BASE_DIR
+from ..anadet.detector import Detector, DetectorProps, SourceProps
+from .config import BASE_DIR
 from pathlib import Path
 import math
 

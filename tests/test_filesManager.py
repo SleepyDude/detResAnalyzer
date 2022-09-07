@@ -1,7 +1,5 @@
-from pathlib import Path
-
-from anadet.filesManager import FilesManager
-from tests.config import BASE_DIR
+from ..anadet.filesManager import FilesManager
+from .config import BASE_DIR
 
 def test_filesManagerRead():
     fm = FilesManager()

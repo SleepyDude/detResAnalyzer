@@ -1,4 +1,4 @@
-from anadet.crawler import Crawler
+from .crawler import Crawler
 
 class FilesManager:
     def __init__(self):
