@@ -85,7 +85,7 @@ class DetectorManager:
                 keyword = '-'.join(tags)
                 self.meta_data[keyword] = dict(loaded_data[item_key]) # dict for copy!
 
-    def filterEnergies(self, detectors : Dict[str, tuple[set, Detector]], energies : List[Tuple[float, str]]) -> Dict[str, Tuple[set, Detector]]:
+    def filterEnergies(self, detectors : Dict[str, Tuple[set, Detector]], energies : List[Tuple[float, str]]) -> Dict[str, Tuple[set, Detector]]:
         res = dict()
         for _, det_pair in detectors.items():
             blocked_set, value = det_pair
@@ -98,7 +98,7 @@ class DetectorManager:
                     res[newkey] = (newset, value)
         return res
         
-    def filterQuantity(self, detectors : Dict[str, tuple[set, Detector]], quantity : str) -> Dict[str, tuple[set, Detector]]:
+    def filterQuantity(self, detectors : Dict[str, Tuple[set, Detector]], quantity : str) -> Dict[str, Tuple[set, Detector]]:
         res = dict()
         for _, det_pair in detectors.items():
             blocked_set, value = det_pair
@@ -109,7 +109,7 @@ class DetectorManager:
                 res[newkey] = (newset, value)
         return res
 
-    def filterTag(self, detectors : Dict[str, tuple[set, Detector]], tag : str) -> Dict[str, tuple[set, Detector]]:
+    def filterTag(self, detectors : Dict[str, Tuple[set, Detector]], tag : str) -> Dict[str, Tuple[set, Detector]]:
         res = dict()
         for _, det_pair in detectors.items():
             blocked_set, value = det_pair
@@ -120,7 +120,7 @@ class DetectorManager:
                 res[newkey] = (newset, value)
         return res
 
-    def filterNums(self, detectors : Dict[str, tuple[set, Detector]], nums : List[str]) -> Dict[str, tuple[set, Detector]]:
+    def filterNums(self, detectors : Dict[str, Tuple[set, Detector]], nums : List[str]) -> Dict[str, Tuple[set, Detector]]:
         res = dict()
         for key, det_pair in detectors.items():
             blocked_set, value = det_pair
@@ -130,7 +130,7 @@ class DetectorManager:
                     res[key] = (newset, value)
         return res
 
-    def prep_dets_for_filtering(self, detectors : Dict[str, Detector]) -> Dict[str, tuple[set, Detector]]:
+    def prep_dets_for_filtering(self, detectors : Dict[str, Detector]) -> Dict[str, Tuple[set, Detector]]:
         res = dict()
         for key, value in detectors.items():
             res[key] = (set(), value)
