@@ -1,5 +1,6 @@
 from pathlib import Path
 import sys
+from os import environ
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 sys.path.append(str(BASE_DIR))
@@ -11,7 +12,7 @@ from anadet.filesManager import FilesManager
 
 # *** READ REAL DATA ***
 fm = FilesManager()
-data_dir = "C:/Projects/room/results"
+data_dir = environ.get('ANADET_RESULT')
 fm.readDirectory(data_dir)
 detector_filenames = fm.getDetFiles()
 dm = DetectorManager()
