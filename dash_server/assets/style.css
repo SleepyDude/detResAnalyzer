@@ -6,7 +6,7 @@ body {
 
 .header {
     background-color: #222222;
-    height: 288px;
+    height: 188px;
     padding: 16px 0 0 0;
 }
 
@@ -18,7 +18,7 @@ body {
 
 .header-title {
     color: #FFFFFF;
-    font-size: 48px;
+    font-size: 32px;
     font-weight: bold;
     text-align: center;
     margin: 0 auto;
@@ -28,7 +28,7 @@ body {
     color: #CFCFCF;
     margin: 4px auto;
     text-align: center;
-    max-width: 384px;
+    max-width: 600px;
 }
 
 .wrapper {

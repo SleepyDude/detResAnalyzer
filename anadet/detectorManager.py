@@ -3,7 +3,7 @@ import re
 from anadet.dataSearcher import DataSearcher
 from anadet.detector import Detector, DetectorProps, SourceProps, GeomProps
 import yaml
-from typing import List, Dict
+from typing import List, Dict, Tuple
 from math import isclose as icl
 
 class DetectorManager:
@@ -85,7 +85,7 @@ class DetectorManager:
                 keyword = '-'.join(tags)
                 self.meta_data[keyword] = dict(loaded_data[item_key]) # dict for copy!
 
-    def filterEnergies(self, detectors : Dict[str, tuple[set, Detector]], energies : list[tuple[float, str]]) -> Dict[str, tuple[set, Detector]]:
+    def filterEnergies(self, detectors : Dict[str, tuple[set, Detector]], energies : List[Tuple[float, str]]) -> Dict[str, Tuple[set, Detector]]:
         res = dict()
         for _, det_pair in detectors.items():
             blocked_set, value = det_pair

@@ -1,35 +1,15 @@
 from dash import Dash, html, dcc, Input, Output, State
 import plotly.graph_objects as go
-import plotly.express as px
-import pandas as pd
 from random import randint
 import distinctipy
 
 from pathlib import Path
 import sys
-
 BASE_DIR = Path(__file__).resolve().parent.parent
 sys.path.append(str(BASE_DIR))
-
-from anadet.detectorManager import DetectorManager
-from anadet.filesManager import FilesManager
 from anadet.detector import Detector
 
-
-# *** READ REAL DATA ***
-fm = FilesManager()
-data_dir = "C:/Projects/room/results"
-fm.readDirectory(data_dir)
-detector_filenames = fm.getDetFiles()
-dm = DetectorManager()
-for filename in detector_filenames:
-    dm.appendResults(str(filename))
-
-# prepare to take data from detectors
-for _, det in dm.detectors.items():
-    ch = det.prima_results[0].strip()
-    ch = ch.shrinkToDelta(0.1)
-    det.highlightResult(ch)
+from dash_server.load_results import detectors, dm
 
 # DASH PART
 external_stylesheets = [
@@ -41,6 +21,7 @@ external_stylesheets = [
 ]
 
 app = Dash(__name__, external_stylesheets=external_stylesheets)
+server = app.server
 
 colors = distinctipy.get_colors(40)
 def gen_col():
@@ -54,24 +35,32 @@ spec_fig = go.Figure()
 phi_fig = go.Figure()
 theta_fig = go.Figure()
 
-spec_fig.update_layout(hovermode='x unified', height=800, )
-phi_fig.update_layout(hovermode='x unified', height=800, )
-theta_fig.update_layout(hovermode='x unified', height=800, )
-
 spec_fig.update_xaxes(type="log")
 spec_fig.update_yaxes(type="log")
 
 phi_fig.update_yaxes(type="log")
 theta_fig.update_yaxes(type="log")
 
-spec_fig.update_xaxes(title_text="Энергия, МэВ")
-spec_fig.update_yaxes(title_text="Плотность потока, нормированная на 1 и на ширину канала")
 
-phi_fig.update_xaxes(title_text="Угол φ, град.")
-phi_fig.update_yaxes(title_text="Плотность потока, нормированная на 1")
+def update_layout(fig, xaxis_title, yaxis_title):
+    fig.update_layout(
+        xaxis_title=xaxis_title,
+        yaxis_title=yaxis_title,
+        font=dict(
+            size=18,
+        ),
+        legend=dict(
+            font=dict(
+                size=11,
+            ),
+        ),
+        hovermode='x unified',
+        height=800,
+    )
+update_layout(spec_fig, "Энергия, МэВ", "Плотность потока, норм. на 1 и на ширину канала")
+update_layout(phi_fig, "Угол φ, град.", "Плотность потока, нормированная на 1")
+update_layout(theta_fig, "Угол θ, град.", "Плотность потока, норм. на 1 и на ед. тел. угол")
 
-theta_fig.update_xaxes(title_text="Угол θ, град.")
-theta_fig.update_yaxes(title_text="Плотность потока, нормированная на 1 и на единичный телесный угол")
 
 QUANTITIES = ['Spec', 'Phi', 'Theta']
 TAGS = ['Vert', 'Diag', 'XWall', 'YWall']
@@ -87,13 +76,11 @@ app.layout = html.Div(
     children=[
         html.Div(
             children=[
-                html.P(children="⚙️", className="header-emoji"),
                 html.H1(
                     children="Аналитика Детекторов", className="header-title"
                 ),
                 html.P(
-                    children="Анализ зависимости спектра и углового распределения"
-                    " от детектора, его удаления от источника и от стен"
+                    children="Анализ зависимости спектра и углового распределения."
                     " Источник расположен в углу комнаты на высоте 1.5 м. и на расстоянии 0.5 м. от стен",
                     className="header-description",
                 ),
@@ -102,21 +89,6 @@ app.layout = html.Div(
         ),
         html.Div(
             children=[
-                # html.Div(
-                #     children=[
-                #         html.Div(children="Quantity", className="menu-title"),
-                #         dcc.Dropdown(
-                #             id="quantity-filter",
-                #             options=[
-                #                 {"label": quantity, "value": quantity}
-                #                 for quantity in QUANTITIES
-                #             ],
-                #             value="Spec",
-                #             clearable=False,
-                #             className="dropdown",
-                #         ),
-                #     ]
-                # ),
                 html.Div(
                     children=[
                         html.Div(children="Type", className="menu-title"),
@@ -251,11 +223,11 @@ def update_num_filter(tag):
 def plot_graph(n_clicks, tag, aenergies: list, anums):
     if n_clicks is None or n_clicks == 0:
         return spec_fig, phi_fig, theta_fig
-    # clear all data 
+    # clear all figures data
     spec_fig.data = []
     phi_fig.data = []
     theta_fig.data = []
-
+    # end clear
     energies = []
     if "All" in aenergies:
         energies = [i for i in ENERGY if i != "All"]
@@ -267,17 +239,32 @@ def plot_graph(n_clicks, tag, aenergies: list, anums):
         nums = [str(i) for i in range(1, NUMS[tag]+1)]
     else:
         nums = [i for i in anums]
+    
+    
+    # Creating titles for figures
+    params_name = tag + ", "
+    if len(energies) > 1:
+        params_name += " различные энергии, "
+    else:
+        params_name += f" энергия {energies[0][0]} {energies[0][1]}, "
+    if len(nums) == 1:
+        params_name += f"{nums[0]}-й детектор"
+    else:
+        params_name += "различные детекторы"
+    spec_name = "Спектр " + params_name
+    phi_name = "Угловое φ " + params_name
+    theta_name = "Угловое θ " + params_name
+    spec_fig.update_layout(title=spec_name)
+    phi_fig.update_layout(title=phi_name)
+    theta_fig.update_layout(title=theta_name)
 
     dets = dm.filterTag(detectors, tag)
     dets = dm.filterEnergies(dets, energies)
     dets = dm.filterNums(dets, nums)
 
     spec_dets = dm.filterQuantity(dets, 'Spec')
-    # print(f'Фильтрую спек, получаю {len(spec_dets)} детекторов')
     phi_dets = dm.filterQuantity(dets, 'Phi')
-    # print(f'Фильтрую фи, получаю {len(phi_dets)} детекторов')
     theta_dets = dm.filterQuantity(dets, 'Theta')
-    # print(f'Фильтрую тета, получаю {len(theta_dets)} детекторов')
     for keyname, value in spec_dets.items():
         _, det = value
         plotNormWidthDetector(spec_fig, det, keyname)
@@ -331,5 +318,4 @@ def plotNormWidthTheta(fig: go.Figure, det: Detector, name: str):
     ))
 
 if __name__ == "__main__":
-    detectors = dm.prep_dets_for_filtering(dm.detectors)
     app.run_server(debug=True)
