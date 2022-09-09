@@ -5,5 +5,6 @@ env
 
 /__pycache__
 */__pycache__
+*/*/__pycache__
 
 tests/test_resources/dump_data/res.txt
