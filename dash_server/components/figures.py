@@ -33,7 +33,7 @@ def update_layout(fig, xaxis_title, yaxis_title):
         height=800,
     )
 update_layout(spec_fig, "Энергия, МэВ", "Плотность потока, норм. на 1 и на ширину канала")
-update_layout(phi_fig, "Угол φ, град.", "Плотность потока, нормированная на 1")
+update_layout(phi_fig, "Угол φ, град.", "Плотность потока, норм. на 1 и на ширину канала")
 update_layout(theta_fig, "Угол θ, град.", "Плотность потока, норм. на 1 и на ед. тел. угол")
 
 figures = html.Div(
