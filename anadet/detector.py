@@ -216,3 +216,13 @@ class Detector:
             omega = 2*math.pi*(math.cos(theta1*math.pi/180.0) - math.cos(theta2*math.pi/180.0))
             res.append(self.hl_res.y[i]/s/omega)
         return self.hl_res.BINS[self.hl_res.bin_index], res
+
+    def get_norm_width_phi_hl(self):
+        s = sum(self.hl_res.y)
+        res = [0]
+        for i in range(len(self.hl_res.y)):
+            phi_1 = self.hl_res.BINS[self.hl_res.bin_index][i]
+            phi_2 = self.hl_res.BINS[self.hl_res.bin_index][i+1]
+            omega = (phi_2 - phi_1) * math.pi/180.0 * 2
+            res.append(self.hl_res.y[i]/s/omega)
+        return self.hl_res.BINS[self.hl_res.bin_index], res

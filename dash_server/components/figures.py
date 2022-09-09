@@ -127,6 +127,16 @@ def plotNormWidthTheta(fig: go.Figure, det: Detector, name: str):
         line_shape='vh',
     ))
 
+def plotNormWidthPhi(fig: go.Figure, det: Detector, name: str):
+    x, y, = det.get_norm_width_phi_hl()
+    color = gen_col()
+    fig.add_trace(go.Scatter(
+        x=x, y=y,
+        line_color=f'rgb({color[0]},{color[1]},{color[2]})',
+        name=name,
+        line_shape='vh',
+    ))
+
 
 
 
@@ -190,7 +200,7 @@ def plot_graph(n_clicks, tag, aenergies: list, anums):
         plotNormWidthDetector(spec_fig, det, keyname)
     for keyname, value in phi_dets.items():
         _, det = value
-        plotNormWidthDetector(phi_fig, det, keyname)
+        plotNormWidthPhi(phi_fig, det, keyname)
     for keyname, value in theta_dets.items():
         _, det = value
         plotNormWidthTheta(theta_fig, det, keyname)
