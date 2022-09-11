@@ -36,44 +36,50 @@ update_layout(spec_fig, "Энергия, МэВ", "Плотность поток
 update_layout(phi_fig, "Угол φ, град.", "Плотность потока, норм. на 1 и на ед. тел. угол")
 update_layout(theta_fig, "Угол θ, град.", "Плотность потока, норм. на 1 и на ед. тел. угол")
 
+spec_fig_layout = html.Div(
+    children=[
+        html.Div(
+            children=dcc.Graph(
+                id="spec-chart",
+                figure=spec_fig
+            ),
+            className="card",
+        ),
+    ],
+    className="wrapper",
+)
+
+phi_fig_layout = html.Div(
+    children=[
+        html.Div(
+            children=dcc.Graph(
+                id="phi-chart",
+                figure=phi_fig
+            ),
+            className="card",
+        ),
+    ],
+    className="wrapper",
+)
+
+theta_fig_layout = html.Div(
+    children=[
+        html.Div(
+            children=dcc.Graph(
+                id="theta-chart",
+                figure=theta_fig
+            ),
+            className="card",
+        ),
+    ],
+    className="wrapper",
+)
+
 figures = html.Div(
     [
-        html.Div(
-            children=[
-                html.Div(
-                    children=dcc.Graph(
-                        id="spec-chart",
-                        figure=spec_fig
-                    ),
-                    className="card",
-                ),
-            ],
-            className="wrapper",
-        ),
-        html.Div(
-            children=[
-                html.Div(
-                    children=dcc.Graph(
-                        id="phi-chart",
-                        figure=phi_fig
-                    ),
-                    className="card",
-                ),
-            ],
-            className="wrapper",
-        ),
-        html.Div(
-            children=[
-                html.Div(
-                    children=dcc.Graph(
-                        id="theta-chart",
-                        figure=theta_fig
-                    ),
-                    className="card",
-                ),
-            ],
-            className="wrapper",
-        ),
+        spec_fig_layout,
+        phi_fig_layout,
+        theta_fig_layout,
     ]
 )
 
