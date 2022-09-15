@@ -1,9 +1,9 @@
 from dash import html, dcc, Output, Input, State, callback
 import plotly.graph_objects as go
-
-from ...anadet.detector import Detector
+import distinctipy
 
 from ..load_results import detectors, dm
+from ..utils.trace_plotters import *
 from .panel import ENERGY, NUMS
 
 spec_fig = go.Figure()
@@ -83,70 +83,6 @@ figures = html.Div(
     ]
 )
 
-import distinctipy
-
-colors = distinctipy.get_colors(40)
-def gen_col():
-    gen_col.i += 1
-    if gen_col.i >= len(colors):
-        gen_col.i = 0
-    return colors[gen_col.i]
-gen_col.i = 13
-
-def plotMeansDetector(fig: go.Figure, det: Detector, name: str):
-    x, y, _, _ = det.get_means_hl()
-    color = gen_col()
-    fig.add_trace(go.Scatter(
-        x=x, y=y,
-        line_color=f'rgb({color[0]},{color[1]},{color[2]})',
-        name=name,
-        line_shape='vh',
-    ))
-
-def plotNormDetector(fig: go.Figure, det: Detector, name: str):
-    x, y, = det.get_norm_hl()
-    color = gen_col()
-    fig.add_trace(go.Scatter(
-        x=x, y=y,
-        line_color=f'rgb({color[0]},{color[1]},{color[2]})',
-        name=name,
-        line_shape='vh',
-    ))
-
-def plotNormWidthDetector(fig: go.Figure, det: Detector, name: str):
-    x, y, = det.get_norm_width_hl()
-    color = gen_col()
-    fig.add_trace(go.Scatter(
-        x=x, y=y,
-        line_color=f'rgb({color[0]},{color[1]},{color[2]})',
-        name=name,
-        line_shape='vh',
-    ))
-
-def plotNormWidthTheta(fig: go.Figure, det: Detector, name: str):
-    x, y, = det.get_norm_width_theta_hl()
-    color = gen_col()
-    fig.add_trace(go.Scatter(
-        x=x, y=y,
-        line_color=f'rgb({color[0]},{color[1]},{color[2]})',
-        name=name,
-        line_shape='vh',
-    ))
-
-def plotNormWidthPhi(fig: go.Figure, det: Detector, name: str):
-    x, y, = det.get_norm_width_phi_hl()
-    color = gen_col()
-    fig.add_trace(go.Scatter(
-        x=x, y=y,
-        line_color=f'rgb({color[0]},{color[1]},{color[2]})',
-        name=name,
-        line_shape='vh',
-    ))
-
-
-
-
-
 @callback(
     Output('spec-chart', 'figure'),
     Output('phi-chart', 'figure'),
@@ -201,14 +137,26 @@ def plot_graph(n_clicks, tag, aenergies: list, anums):
     spec_dets = dm.filterQuantity(dets, 'Spec')
     phi_dets = dm.filterQuantity(dets, 'Phi')
     theta_dets = dm.filterQuantity(dets, 'Theta')
+    col_dict = dict()
+    # len_max = len(spec_dets) # suppose that dicts have the same 'max' len. should be changed for the other cases
+    # colors = distinctipy.get_colors(len_max)
     for keyname, value in spec_dets.items():
+        if keyname not in col_dict:
+            col_dict[keyname] = gen_col()
+        col = col_dict[keyname]
         _, det = value
-        plotNormWidthDetector(spec_fig, det, keyname)
+        plotNormWidthDetector(spec_fig, det, keyname, col)
     for keyname, value in phi_dets.items():
+        if keyname not in col_dict:
+            col_dict[keyname] = gen_col()
+        col = col_dict[keyname]
         _, det = value
-        plotNormWidthPhi(phi_fig, det, keyname)
+        plotNormWidthPhi(phi_fig, det, keyname, col)
     for keyname, value in theta_dets.items():
+        if keyname not in col_dict:
+            col_dict[keyname] = gen_col()
+        col = col_dict[keyname]
         _, det = value
-        plotNormWidthTheta(theta_fig, det, keyname)
+        plotNormWidthTheta(theta_fig, det, keyname, col)
 
     return spec_fig, phi_fig, theta_fig
