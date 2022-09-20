@@ -1,5 +1,6 @@
 
 from dash import html, dcc, callback, Input, Output
+import dash_bootstrap_components as dbc
 
 QUANTITIES = ['Spec', 'Phi', 'Theta']
 TAGS = ['Vert', 'Diag', 'XWall', 'YWall']
@@ -11,11 +12,11 @@ NUMS = {
     'YWall': 10
 }
 
-up_menu = html.Div(
+up_panel_row = dbc.Row(
     children=[
-        html.Div(
+        dbc.Col(
             children=[
-                html.Div(children="Type", className="menu-title"),
+                html.Div(children="Type"),
                 dcc.Dropdown(
                     id="tag-filter",
                     options=[
@@ -25,74 +26,77 @@ up_menu = html.Div(
                     value="Vert",
                     clearable=False,
                     searchable=False,
-                    className="dropdown",
                 ),
             ],
+            className='col-4',
         ),
-        html.Div(
+        dbc.Col(
             children=[
                 html.Div(
                     children="Energy",
-                    className="menu-title"
-                    ),
-                    dcc.Dropdown(
-                        id="energy-filter",
-                        options=[
-                            {"label": energy, "value": energy}
-                            for energy in ENERGY
-                        ],
-                        value="All",
-                        clearable=False,
-                        searchable=False,
-                        className="dropdown",
-                        multi=True,
                 ),
-            ]
+                dcc.Dropdown(
+                    id="energy-filter",
+                    options=[
+                        {"label": energy, "value": energy}
+                        for energy in ENERGY
+                    ],
+                    value="All",
+                    clearable=False,
+                    searchable=False,
+                    multi=True,
+                ),
+            ],
+            className='col-8',
         ),
     ],
-    className="menu",
+    className="form-group",
 )
 
-down_menu = html.Div(
+down_panel_row = dbc.Row(
     children=[
-        html.Div(
+        dbc.Col(
             children=[
                 html.Div(
                     children="Num",
-                    className="menu-title-num menu-title"
                 ),
                 dcc.Dropdown(
                     id="num-filter",
                     options=[],
                     multi=True,
-                    className="dropdown",
                     value='1'
                 ),
             ],
+            className='col-8',
         ),
-        html.Div(
+        dbc.Col(
             children=[
                 html.Div(
                     children="...",
-                    className="menu-title-num menu-title"
                 ),
                 html.Button(
                     'Plot', 
-                    id='submit-plot', 
-                    className='Select-control plot-btn',
+                    id='submit-plot',
                     n_clicks=0,
+                    className="Select-control btn-plot"
                 ),
-            ]
+            ],
+            className='col-4',
         ),
     ],
-    className="menu-num",
+    className="form-group mb-2",
 )
 
-panel = html.Div(
-    [
-        up_menu,
-        down_menu,
-    ]
+fig_panel = dbc.Row(
+    dbc.Col(
+        [
+            up_panel_row,
+            down_panel_row,
+        ],
+        className="col-lg-10 fig_panel bg-white rounded text-green-pl"
+    ),
+    className="d-flex justify-content-center mb-3"
+    # className='shadow-sm bg-light rounded mt-2 mb-2 w-75 mx-auto'
 )
 
 @callback(
