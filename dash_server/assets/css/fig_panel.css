@@ -1,0 +1,13 @@
+
+.fig_panel {
+    margin-top: -75px;
+}
+
+.btn-plot {
+    background-color: #079A82;
+    color: white;
+}
+
+.btn-plot:hover {
+    background-color: #046857;
+}
