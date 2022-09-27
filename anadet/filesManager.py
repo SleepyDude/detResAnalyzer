@@ -6,6 +6,8 @@ class FilesManager:
         self.metaFiles = []
 
     def readDirectory(self, dir):
+        if dir is None:
+            raise RuntimeError('FilesManager failed to read directory. Please set directory to the "ANADET_RESULT" env')
         cr = Crawler(dir)
         files = cr.getFiles()
         for file in files:

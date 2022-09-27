@@ -4,6 +4,7 @@ from typing import List
 class Crawler:
     IGNORE_ITEMS = ["__pycache__", ".DS_Store"]
     def __init__(self, root):
+        print(f"[*] Crawler initialization with root directory: {root}")
         self.root_dir = Path(root)
 
     def getFiles(self) -> List[Path]:

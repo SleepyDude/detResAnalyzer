@@ -1,14 +1,7 @@
-from pathlib import Path
-import sys
 from os import environ
 
-BASE_DIR = Path(__file__).resolve().parent.parent
-sys.path.append(str(BASE_DIR))
-
-from anadet.detectorManager import DetectorManager
-from anadet.filesManager import FilesManager
-
-
+from ..anadet.detectorManager import DetectorManager
+from ..anadet.filesManager import FilesManager
 
 # *** READ REAL DATA ***
 fm = FilesManager()
