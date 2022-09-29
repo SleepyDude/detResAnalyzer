@@ -6,6 +6,7 @@ import dash_bootstrap_components as dbc
 from ..load_results import detectors, dm
 from ..utils.trace_plotters import *
 from .fig_panel import ENERGY, NUMS
+from ...anadet.detectorUtils import filterEnergies, filterNums, filterQuantity, filterTag
 
 from .trace_table import table_data
 
@@ -111,7 +112,6 @@ fig_content = dbc.Tabs(
     Output('spec-chart', 'figure'),
     Output('phi-chart', 'figure'),
     Output('theta-chart', 'figure'),
-    # Output('trace-table', 'children'),
     Input('submit-plot', 'n_clicks'),
     State('tag-filter', 'value'),
     State('energy-filter', 'value'),
@@ -155,13 +155,13 @@ def plot_graph(n_clicks, tag, aenergies: list, anums):
     phi_fig.update_layout(title=phi_name)
     theta_fig.update_layout(title=theta_name)
 
-    dets = dm.filterTag(detectors, tag)
-    dets = dm.filterEnergies(dets, energies)
-    dets = dm.filterNums(dets, nums)
+    dets = filterTag(detectors, tag)
+    dets = filterEnergies(dets, energies)
+    dets = filterNums(dets, nums)
 
-    spec_dets = dm.filterQuantity(dets, 'Spec')
-    phi_dets = dm.filterQuantity(dets, 'Phi')
-    theta_dets = dm.filterQuantity(dets, 'Theta')
+    spec_dets = filterQuantity(dets, 'Spec')
+    phi_dets = filterQuantity(dets, 'Phi')
+    theta_dets = filterQuantity(dets, 'Theta')
     col_dict = dict()
     # len_max = len(spec_dets) # suppose that dicts have the same 'max' len. should be changed for the other cases
     # colors = distinctipy.get_colors(len_max)
@@ -194,7 +194,5 @@ def plot_graph(n_clicks, tag, aenergies: list, anums):
     }
     table_data.clear()
     table_data.update(data)
-    # table = 'placeholder'
 
     return spec_fig, phi_fig, theta_fig
-    # return table
