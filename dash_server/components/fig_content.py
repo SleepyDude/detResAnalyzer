@@ -7,6 +7,8 @@ from ..load_results import detectors, dm
 from ..utils.trace_plotters import *
 from .fig_panel import ENERGY, NUMS
 
+from .trace_table import table_data
+
 spec_fig = go.Figure()
 phi_fig = go.Figure()
 theta_fig = go.Figure()
@@ -103,10 +105,13 @@ fig_content = dbc.Tabs(
     ]
 )
 
+
+
 @callback(
     Output('spec-chart', 'figure'),
     Output('phi-chart', 'figure'),
     Output('theta-chart', 'figure'),
+    # Output('trace-table', 'children'),
     Input('submit-plot', 'n_clicks'),
     State('tag-filter', 'value'),
     State('energy-filter', 'value'),
@@ -179,4 +184,17 @@ def plot_graph(n_clicks, tag, aenergies: list, anums):
         _, det = value
         plotNormWidthTheta(theta_fig, det, keyname, col)
 
+    # making data for table
+    data = {
+        'name': [keyname for keyname in theta_dets],
+        'color': [col_dict[keyname] for keyname in theta_dets],
+        'spec': [keyname for keyname in theta_dets],
+        'phi': [keyname for keyname in theta_dets],
+        'theta': [keyname for keyname in theta_dets]
+    }
+    table_data.clear()
+    table_data.update(data)
+    # table = 'placeholder'
+
     return spec_fig, phi_fig, theta_fig
+    # return table
