@@ -1,10 +1,10 @@
 
 # package imports 
-from dash import Dash, html
+from dash import Dash
 import dash_bootstrap_components as dbc
 
 # local imports
-from .components import title, fig_content, fig_panel
+from .components import title, fig_content, fig_panel, trace_table
 
 app = Dash(
     __name__,
@@ -27,18 +27,13 @@ def serve_layout():
                 [
                     fig_panel,
                     fig_content,
+                    trace_table,
                 ]
             ),
         ],
         fluid=True,
         className="bg-light"
     )
-    # return html.Div(
-    #     [
-    #         title,
-    #         fig_content,
-    #     ]
-    # )
 
 app.layout = serve_layout
 
