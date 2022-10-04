@@ -1,13 +1,28 @@
 from .detRes import DetRes
-from pathlib import Path
-from dataclasses import dataclass, field
-from typing import List
+from dataclasses import dataclass
+from typing import List, ClassVar
 import math
+from functools import total_ordering
 
 @dataclass
 class SourceProps:
+    UNIT_CONVERT: ClassVar[dict] = {
+        'eV': 1.0,
+        'keV': 1e+3,
+        'MeV': 1e+6,
+    }
     energy: float = 0.0
     energy_unit: str = ""
+    energy_str: str = ""
+
+    def __post_init__(self):
+        self.energy_str = f"{self.energy:.2f} {self.energy_unit}"
+
+    def get_eV(self):
+        if self.energy_unit not in self.UNIT_CONVERT:
+            print(f"ERROR: can't find {self.energy_unit} energy unit in dict!")
+        return self.energy * self.UNIT_CONVERT[self.energy_unit]
+
 
 @dataclass
 class GeomProps:
@@ -67,7 +82,9 @@ class DetectorProps:
     def getTags(self):
         return self.__tags
 
+@total_ordering
 class Detector:
+
     @staticmethod
     def createName(detprops: DetectorProps):
         return f"{detprops}"
@@ -226,3 +243,24 @@ class Detector:
             omega = (phi_2 - phi_1) * math.pi/180.0 * 2
             res.append(self.hl_res.y[i]/s/omega)
         return self.hl_res.BINS[self.hl_res.bin_index], res
+
+    def __lt__(self, other: 'Detector'):
+        # one tag implementation!
+        if self.detProps.quantity < other.detProps.quantity:
+            return True
+        elif self.detProps.quantity > other.detProps.quantity:
+            return False
+        else:
+            if self.detProps.getTags()[0] < other.detProps.getTags()[0]:
+                return True
+            elif self.detProps.getTags()[0] > other.detProps.getTags()[0]:
+                return False
+            else:
+                if self.detProps.src_props.get_eV() < other.detProps.src_props.get_eV():
+                    return True
+                elif self.detProps.src_props.get_eV() > other.detProps.src_props.get_eV():
+                    return False
+                else:
+                    if self.detProps.num < other.detProps.num:
+                        return True
+        return False

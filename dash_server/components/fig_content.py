@@ -6,7 +6,7 @@ import dash_bootstrap_components as dbc
 from ..load_results import detectors, dm
 from ..utils.trace_plotters import *
 from .fig_panel import ENERGY, NUMS
-from ...anadet.detectorUtils import filterEnergies, filterNums, filterQuantity, filterTag
+from ...anadet.detectorUtils import filterEnergies, filterNums, filterQuantity, filterTag, order_dets
 
 from .trace_table import table_data
 
@@ -158,6 +158,7 @@ def plot_graph(n_clicks, tag, aenergies: list, anums):
     dets = filterTag(detectors, tag)
     dets = filterEnergies(dets, energies)
     dets = filterNums(dets, nums)
+    dets = order_dets(dets)
 
     spec_dets = filterQuantity(dets, 'Spec')
     phi_dets = filterQuantity(dets, 'Phi')

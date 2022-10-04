@@ -53,3 +53,19 @@ def prep_dets_for_filtering(detectors : Dict[str, Detector]) -> Dict[str, Tuple[
     for key, value in detectors.items():
         res[key] = (set(), value)
     return res
+
+# ordering detector collection
+'''
+ORDERING DETECTORS
+Among the detectors we should have some priority for sorting
+For example, there are many different detectors with different params:
+    - Quantity
+    - Tags (Detector type: Vert, Diag, XWall, YWall)
+    - Energy
+    - Number (Kind of tag, but the number)
+Sort should be done successively over these params, from the top to bottom
+Quantity and tags should be as a base
+'''
+
+def order_dets(dets: Dict[str, Tuple[set, Detector]]) -> Dict[str, Tuple[set, Detector]]:
+    return dict(sorted(dets.items(), key=lambda dtuple: dtuple[1][1]))

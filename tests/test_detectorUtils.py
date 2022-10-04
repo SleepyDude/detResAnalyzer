@@ -1,8 +1,11 @@
 from ..anadet.detectorManager import DetectorManager
 from ..anadet.filesManager import FilesManager
 from ..anadet.detectorUtils import prep_dets_for_filtering, filterEnergies, filterNums, filterQuantity, filterTag
+from ..anadet.detectorUtils import order_dets
+from ..anadet.detector import Detector, DetectorProps, SourceProps
 from .config import BASE_DIR
 import pytest
+from typing import Tuple, Dict
 
 @pytest.fixture
 def fm():
@@ -20,6 +23,93 @@ def dm(fm) -> DetectorManager:
     for filename in detector_filenames:
         dm.appendResults(str(filename))
     return dm
+
+@pytest.fixture
+def detectors() -> Dict[str, Tuple[set, Detector]]:
+    '''
+    Creating the list of detectors for ordering testing
+    Detectors:
+        1. Spec  Vert  5 1 keV
+        2. Phi   Diag  2 0.1 eV
+        3. Theta Vert  1 1 eV
+        4. Phi   Diag  1 4 MeV
+        5. Theta XWall 4 2 MeV
+        6. Theta YWall 2 1 keV
+        7. Spec  XWall 2 1 keV
+        8. Spec  XWall 3 3 keV
+        9. Phi   YWall 6 0.4 eV
+    '''
+    res = dict()
+    data = [
+        ('Spec',  'Vert',  '5', 1, 'keV'),
+        ('Phi',   'Diag',  '2', 0.1, 'eV'),
+        ('Theta', 'Vert',  '1', 1, 'eV'),
+        ('Phi',   'Diag',  '1', 4, 'MeV'),
+        ('Theta', 'XWall', '4', 2, 'MeV'),
+        ('Theta', 'YWall', '2', 1, 'keV'),
+        ('Spec',  'XWall', '2', 1, 'keV'),
+        ('Spec',  'XWall', '3', 3, 'keV'),
+        ('Phi',   'YWall', '6', 0.4, 'eV'),
+    ]
+    for item in data:
+        src_props = SourceProps(item[3], item[4])
+        det_props = DetectorProps(src_props, item[0], item[2])
+        det_props.setTag(item[1])
+        d = Detector(det_props)
+        res[d.detProps.getKeyname] = (set(), d)
+    return res
+
+
+@pytest.fixture
+def tag_num_dets() -> Dict[str, Tuple[set, Detector]]:
+    '''
+    Creating the list of detectors for ordering testing
+    Detectors:
+        0. Spec Vert  5 1 keV
+        1. Spec Diag  2 0.1 eV
+        2. Spec Vert  1 1 keV
+        3. Spec Diag  1 4 MeV
+        4. Spec XWall 5 1 MeV
+        5. Spec YWall 2 1 keV
+        6. Spec XWall 2 1 MeV
+        7. Spec XWall 3 1 MeV
+        9. Spec YWall 2 0.4 eV
+       10. Spec Vert  3 1 keV
+       11. Spec Diag  6 4 MeV
+       12. Spec Vert  2 0.4 eV
+       13. Spec Diag  4 0.1 eV
+       14. Spec YWall 2 10 keV
+       15. Spec YWall 2 1 MeV
+       16. Spec XWall 6 1 MeV
+       17. Spec XWall 1 1 MeV
+    '''
+    res = dict()
+    data = [
+        ("Spec", "Vert",  "5", 1, "keV"),
+        ("Spec", "Diag",  "2", 0.1, "eV"),
+        ("Spec", "Vert",  "1", 1, "keV"),
+        ("Spec", "Diag",  "1", 4, "MeV"),
+        ("Spec", "XWall", "5", 1, "MeV"),
+        ("Spec", "YWall", "2", 1, "keV"),
+        ("Spec", "XWall", "2", 1, "MeV"),
+        ("Spec", "XWall", "3", 1, "MeV"),
+        ("Spec", "YWall", "2", 0.4, "eV"),
+        ("Spec", "Vert",  "3", 1, "keV"),
+        ("Spec", "Diag",  "6", 4, "MeV"),
+        ("Spec", "Vert",  "2", 0.4, "eV"),
+        ("Spec", "Diag",  "4", 0.1, "eV"),
+        ("Spec", "YWall", "2", 10, "keV"),
+        ("Spec", "YWall", "2", 1, "MeV"),
+        ("Spec", "XWall", "6", 1, "MeV"),
+        ("Spec", "XWall", "1", 1, "MeV"),
+    ]
+    for item in data:
+        src_props = SourceProps(item[3], item[4])
+        det_props = DetectorProps(src_props, item[0], item[2])
+        det_props.setTag(item[1])
+        d = Detector(det_props)
+        res[d.detProps.getKeyname] = (set(), d)
+    return res
 
 def test_filter_energy(dm: DetectorManager):
     detectors = prep_dets_for_filtering(dm.detectors)
@@ -103,3 +193,36 @@ def test_filter_sequence(dm: DetectorManager):
     assert '1' in res
     assert '2' in res
     assert '6' in res
+
+def test_ordering(detectors: Dict[str, Tuple[set, Detector]]):
+    prim_dets = list()
+    for _, value in detectors.items():
+        prim_dets.append(value[1])
+
+    dets = order_dets(detectors)
+    # let's put them into list for convenience
+    '''
+    Detectors:
+                                  Q   T   E   N  RES
+        0. Spec  Vert  5 1 keV  | 1 | 1 | 3 | 5 | 1135 | 3     
+        1. Phi   Diag  2 0.1 eV | 0 | 0 | 0 | 2 | 2    | 0 
+        2. Theta Vert  1 1 eV   | 2 | 1 | 2 | 1 | 2121 | 6    
+        3. Phi   Diag  1 4 MeV  | 0 | 0 | 6 | 1 | 61   | 1 
+        4. Theta XWall 4 2 MeV  | 2 | 2 | 5 | 4 | 2254 | 7    
+        5. Theta YWall 2 1 keV  | 2 | 3 | 3 | 2 | 2332 | 8    
+        6. Spec  XWall 2 1 keV  | 1 | 2 | 3 | 2 | 1232 | 4   
+        7. Spec  XWall 3 3 keV  | 1 | 2 | 4 | 3 | 1243 | 5   
+        8. Phi   YWall 6 0.4 eV | 0 | 3 | 1 | 6 | 316  | 2   
+    '''
+    sort_dets = list()
+    for _, value in dets.items():
+        sort_dets.append(value[1])
+    assert sort_dets[0] == prim_dets[1]
+    assert sort_dets[1] == prim_dets[3]
+    assert sort_dets[2] == prim_dets[8]
+    assert sort_dets[3] == prim_dets[0]
+    assert sort_dets[4] == prim_dets[6]
+    assert sort_dets[5] == prim_dets[7]
+    assert sort_dets[6] == prim_dets[2]
+    assert sort_dets[7] == prim_dets[4]
+    assert sort_dets[8] == prim_dets[5]
