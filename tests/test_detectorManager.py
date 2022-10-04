@@ -12,16 +12,6 @@ def fm():
     fm.readDirectory(test_directory)
     return fm
 
-@pytest.fixture
-def dm(fm) -> DetectorManager:
-    detector_filenames = fm.getDetFiles()
-    meta_filenames = fm.getMetaFiles()
-    dm = DetectorManager()
-    dm.readMeta(meta_filenames[0])
-    for filename in detector_filenames:
-        dm.appendResults(str(filename))
-    return dm
-
 def test_grouping(fm):
     detector_filenames = fm.getDetFiles()
     dm = DetectorManager()
@@ -65,89 +55,6 @@ def test_append_result_with_meta(fm):
     assert math.isclose(dm.detectors['Spec_Diag_1_SRC[1.00 keV]'].detProps.geom_props.distance, 1107.519752, abs_tol=1e-14)
     assert math.isclose(dm.detectors['Phi_Diag_1_SRC[1.00 keV]'].detProps.geom_props.angle, 0.000508761, abs_tol=1e-14)
     assert math.isclose(dm.detectors['Phi_Diag_1_SRC[1.00 keV]'].detProps.geom_props.distance, 1107.519752, abs_tol=1e-14)
-
-def test_filter_energy(dm: DetectorManager):
-    detectors = dm.prep_dets_for_filtering(dm.detectors)
-
-    res_detectors = dm.filterEnergies(detectors, [(0.1, 'MeV')])
-    assert 'Spec_Diag_1' in res_detectors
-    assert 'Spec_Diag_2' in res_detectors
-    assert 'Spec_Diag_3' in res_detectors
-    assert 'Spec_Diag_4' in res_detectors
-    assert 'Spec_Diag_5' in res_detectors
-    assert 'Spec_Diag_6' in res_detectors
-    assert len(res_detectors) == 6
-
-    res_detectors2 = dm.filterEnergies(detectors, [(1, 'keV')])
-    assert 'Phi_Diag_1' in res_detectors2
-    assert 'Phi_Diag_2' in res_detectors2
-    assert 'Phi_Diag_3' in res_detectors2
-    assert 'Spec_Diag_1' in res_detectors2
-    assert 'Spec_Diag_2' in res_detectors2
-    assert 'Spec_Diag_3' in res_detectors2
-    assert 'Spec_Diag_4' in res_detectors2
-    assert 'Spec_Diag_5' in res_detectors2
-    assert 'Spec_Diag_6' in res_detectors2
-    assert 'Spec_Vert_1' in res_detectors2
-    assert 'Spec_Vert_2' in res_detectors2
-    assert len(res_detectors2) == 11
-
-    res_detectors3 = dm.filterEnergies(detectors, [(10, 'keV')])
-    assert len(res_detectors3) == 0
-
-def test_filter_quantity(dm: DetectorManager):
-    detectors = dm.prep_dets_for_filtering(dm.detectors)
-
-    res_detectors = dm.filterQuantity(detectors, 'Phi')
-    assert 'Diag_1_SRC[0.50 MeV]' in res_detectors
-    assert 'Diag_1_SRC[1.00 keV]' in res_detectors
-    assert 'Diag_2_SRC[1.00 keV]' in res_detectors
-    assert 'Diag_3_SRC[1.00 keV]' in res_detectors
-    assert 'Diag_1_SRC[1.00 MeV]' in res_detectors
-    assert len(res_detectors) == 5
-
-    res_detectors2 = dm.filterQuantity(detectors, 'Spec')
-    assert 'Diag_1_SRC[0.10 MeV]' in res_detectors2
-    assert 'Diag_4_SRC[0.10 MeV]' in res_detectors2
-    assert 'Diag_1_SRC[0.50 MeV]' in res_detectors2
-    assert 'Diag_4_SRC[0.50 MeV]' in res_detectors2
-    assert 'Diag_6_SRC[0.50 MeV]' in res_detectors2
-    assert 'Diag_3_SRC[1.00 keV]' in res_detectors2
-    assert 'Vert_2_SRC[1.00 keV]' in res_detectors2
-    assert len(res_detectors2) == 20
-
-    res_detectors3 = dm.filterQuantity(detectors, 'Theta')
-    assert len(res_detectors3) == 0
-
-def test_filter_tag(dm: DetectorManager):
-    detectors = dm.prep_dets_for_filtering(dm.detectors)
-
-    res_detectors = dm.filterTag(detectors, 'Vert')
-    assert 'Spec_1_SRC[1.00 keV]' in res_detectors
-    assert 'Spec_2_SRC[1.00 keV]' in res_detectors
-    assert len(res_detectors) == 2
-
-    res_detectors2 = dm.filterTag(detectors, 'XWall')
-    assert len(res_detectors2) == 0
-
-    res_detectors3 = dm.filterTag(detectors, 'Diag')
-    assert 'Spec_1_SRC[0.10 MeV]' in res_detectors3
-    assert 'Spec_3_SRC[0.10 MeV]' in res_detectors3
-    assert 'Spec_3_SRC[0.50 MeV]' in res_detectors3
-    assert 'Phi_2_SRC[1.00 keV]' in res_detectors3
-    assert 'Phi_1_SRC[0.50 MeV]' in res_detectors3
-    assert 'Phi_1_SRC[1.00 MeV]' in res_detectors3
-    assert len(res_detectors3) == 23
-
-def test_filter_sequence(dm: DetectorManager):
-    detectors = dm.prep_dets_for_filtering(dm.detectors)
-    res = dm.filterQuantity(detectors, 'Spec')
-    res = dm.filterTag(res, 'Diag')
-    res = dm.filterEnergies(res, [(1, 'keV')])
-    assert len(res) == 6
-    assert '1' in res
-    assert '2' in res
-    assert '6' in res
 
 if __name__ == "__main__":
     pytest.main(["tests/test_detectorManager.py", "-s"])

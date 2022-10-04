@@ -2,6 +2,7 @@ from os import environ
 
 from ..anadet.detectorManager import DetectorManager
 from ..anadet.filesManager import FilesManager
+from ..anadet.detectorUtils import prep_dets_for_filtering
 
 # *** READ REAL DATA ***
 fm = FilesManager()
@@ -18,4 +19,4 @@ for _, det in dm.detectors.items():
     ch = ch.shrinkToDelta(0.1)
     det.highlightResult(ch)
 
-detectors = dm.prep_dets_for_filtering(dm.detectors)
+detectors = prep_dets_for_filtering(dm.detectors)
